@@ -104,7 +104,7 @@ Administrator and Owner accounts automatically receive a higher token multiplier
 
 ### Who owns the data loaded into mycorpus?
 
-You own your data. mycorpus is deployed entirely within your AWS account. All corpus content, user conversations, and configuration data remain in your infrastructure. mycorpus (the software) does not operate a shared cloud service — each deployment is isolated in its own account.
+You own your data. Each mycorpus tenant runs in a dedicated, isolated AWS account managed by mycorpus. Your corpus content, user conversations, and configuration data are contained within that account and are never co-mingled with another organisation's data. No other tenant can access your account, and mycorpus staff access is governed by standard AWS IAM controls.
 
 ### Does AWS use my data to train AI models?
 
@@ -116,7 +116,7 @@ No. The Claude model used by mycorpus runs inside AWS's infrastructure, not Anth
 
 ### Is my data shared between different mycorpus deployments?
 
-No. Each mycorpus deployment is isolated within its own AWS account. There is no shared infrastructure, shared database, or shared model context between deployments. Your data cannot be accessed from another organisation's deployment.
+No. Each organisation gets a dedicated AWS account. There is no shared infrastructure, shared database, or shared model context between tenants. Your data physically cannot be accessed from another organisation's environment.
 
 ### Is my data encrypted?
 
@@ -252,7 +252,7 @@ mycorpus is available in four tiers: Free, Basic, Pro, and Business. The tier co
 
 ### What is the difference between the plans?
 
-The Free plan supports up to 3 users, 2 corpora, 10,000 chunks per corpus, and 100,000 tokens per user per week. Google, SAML, and OIDC login are not available.
+The Free plan supports up to 5 users, 2 corpora, 10,000 chunks per corpus, and 100,000 tokens per user per week. Google, SAML, and OIDC login are not available.
 
 The Basic plan supports up to 10 users, 10 corpora, 25,000 chunks per corpus, and 250,000 tokens per user per week. Google, SAML, and OIDC login are not available.
 

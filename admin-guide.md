@@ -251,7 +251,7 @@ mycorpus is available in four plan tiers. The active tier is stored in the syste
 
 | Feature                   | Free     | Basic    | Pro      | Business   |
 |---------------------------|----------|----------|----------|------------|
-| Users                     | 3        | 10       | 25       | Variable   |
+| Users                     | 5        | 10       | 25       | Variable   |
 | Corpora                   | 2        | 10       | 25       | 100        |
 | Chunks per corpus         | 10,000   | 25,000   | 50,000   | 100,000    |
 | Tokens per user per week  | 100,000  | 250,000  | 500,000  | Variable   |
@@ -291,11 +291,11 @@ Scheduled rebuilds are available on Pro and Business plans. Configuration fields
 
 ### Where is corpus data stored?
 
-All corpus data is stored in an S3 bucket within your AWS account. The built corpus artifacts (chunk text and embeddings) live at `corpora/{id}/builds/{timestamp}/` in that bucket. Source configuration is stored at `corpora/{id}/sources.json`. Uploaded documents are stored at `corpora/{id}/documents/`.
+All corpus data is stored in an S3 bucket within your dedicated AWS account. Each tenant has their own isolated AWS account — data is never co-mingled with other organisations. The built corpus artifacts (chunk text and embeddings) live at `corpora/{id}/builds/{timestamp}/` in that bucket. Source configuration is stored at `corpora/{id}/sources.json`. Uploaded documents are stored at `corpora/{id}/documents/`.
 
 ### Who has access to my data?
 
-Data is contained within your AWS account. Only AWS services operating within your account (Lambda, ECS, Bedrock) access it during normal operation. No data is shared with external parties. AWS Bedrock processes inference requests in memory without persisting prompts or completions.
+Data is contained within your dedicated AWS account. Only AWS services operating within that account (Lambda, ECS, Bedrock) access it during normal operation. No data is shared with other tenants or external parties. AWS Bedrock processes inference requests in memory without persisting prompts or completions.
 
 ### How is data encrypted?
 
