@@ -106,6 +106,33 @@ If your administrator has set up multiple corpora, you may be able to select whi
 
 ---
 
+## MCP Connector — Using mycorpus with Claude Desktop
+
+### What is the MCP Connector?
+
+The MCP Connector lets Claude Desktop search your mycorpus knowledge bases directly. When you are having a conversation in Claude Desktop, Claude can call your corpus as a tool — finding relevant passages and using them to answer your question — without you needing to copy and paste content manually.
+
+### How do I set up the MCP Connector?
+
+Open the settings panel by clicking the person icon in the sidebar, then navigate to the **MCP Connector** tab. Click **Generate**, give the key a label (for example, the name of your computer), and copy the API key when it appears. The key is shown only once — if you lose it, generate a new one.
+
+The settings panel also shows a ready-made configuration snippet. Open the Claude Desktop application settings, find `claude_desktop_config.json`, and paste the snippet into the `mcpServers` section. Restart Claude Desktop to activate the connection.
+
+### What can Claude Desktop do once connected?
+
+Claude Desktop gains two new tools:
+
+- **List corpora** — Claude can see which knowledge bases are available and what each one covers.
+- **Search a corpus** — Claude can search a specific knowledge base for passages relevant to your question.
+
+Claude decides automatically when to use these tools based on the description of each corpus. You can ask questions naturally and Claude will search your knowledge base when the answer is likely to be there.
+
+### How do I revoke a key?
+
+In the **MCP Connector** settings tab, click **Revoke** next to the key you want to remove. This takes effect immediately. Any Claude Desktop using that key will lose access on its next request.
+
+---
+
 ## Account and Privacy
 
 ### Who can see my conversations?

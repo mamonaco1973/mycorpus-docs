@@ -50,6 +50,22 @@ The corpus status changes to **Error**. An email notification is sent to all Own
 
 In the corpus detail view, click the **Log** tab while a build is running, or after it completes. The log streams from AWS CloudWatch and shows detailed progress from each ingestor. Failed sources are clearly marked.
 
+### What is CORPUS.md?
+
+CORPUS.md is a plain-text description of what a corpus covers. It is used as the tool description when the corpus is exposed through the MCP Connector to Claude Desktop, so Claude knows when to search that corpus. It is also useful documentation for anyone managing the knowledge base.
+
+CORPUS.md can come from three places, in order of priority:
+
+1. **Source document** — place a file named `CORPUS.md` in a GitHub or GitLab Corpus Repo source. It is detected automatically during the build.
+2. **AI generation** — if no CORPUS.md is found in source documents, the build process samples up to 30 content chunks and calls Bedrock to generate a description automatically.
+3. **Manual edit** — you can write or overwrite the description at any time in the corpus detail panel. Select a corpus, open the **Sources** sub-tab, then click the **CORPUS.md** inner tab.
+
+Manual edits are preserved across corpus rebuilds. The ingestor only writes a new CORPUS.md if the field is currently blank.
+
+### How do I edit CORPUS.md manually?
+
+Select the corpus from the Corpora list. In the corpus detail panel, click the **CORPUS.md** inner tab (next to Sources). A text editor appears with the current content. Edit the description and click **Save**. To discard your edits and regenerate from the corpus content, click **Regenerate with AI**.
+
 ### What is the chunk limit?
 
 Each corpus has a maximum number of text chunks determined by your plan tier. If the chunk limit is reached during a build, ingestion stops and the email notification notes that content was truncated. To index more content, upgrade your plan or reduce the number of sources.
@@ -284,6 +300,39 @@ The user sees a message that their budget is exhausted and when it resets. They 
 Scheduled corpus rebuilds allow a corpus to be automatically rebuilt on a daily or weekly schedule without manual intervention. This is particularly useful when using GitHub Corpus Repo, GitLab Corpus Repo, or URL sources where the source content changes over time.
 
 Scheduled rebuilds are available on Pro and Business plans. Configuration fields (frequency, hour, day of week) are reserved in the system and will be enabled in a forthcoming release.
+
+---
+
+## MCP Connector
+
+The MCP Connector lets users connect Claude Desktop to their mycorpus knowledge bases using the Model Context Protocol. Once connected, Claude Desktop can search corpora directly during a conversation — no copy-pasting required.
+
+### How does the MCP Connector work?
+
+mycorpus exposes a `/mcp` endpoint that implements the MCP Streamable HTTP transport. Each user provisions a personal API key, adds it to their Claude Desktop configuration, and Claude can then call `list_corpora` and `search_<corpus>` tools when answering questions.
+
+The MCP Connector is available to all registered users, not just administrators.
+
+### How do users set up the MCP Connector?
+
+Users open their settings (the person icon in the sidebar), navigate to the **MCP Connector** tab, and click **Generate** to create an API key. The raw key is shown once and must be copied immediately. The settings panel also displays a ready-to-paste JSON snippet for `claude_desktop_config.json`.
+
+### What tools does the MCP endpoint expose?
+
+Two tool types are exposed:
+
+- `list_corpora` — returns a list of all ready corpora with their CORPUS.md descriptions, so Claude can decide which corpus to search.
+- `search_<corpus_id>` — performs a semantic search over a specific corpus and returns the top relevant passages. One tool is created per built corpus.
+
+The CORPUS.md description of each corpus becomes the tool description. A well-written CORPUS.md helps Claude select the right corpus for each question automatically.
+
+### How do I revoke an API key?
+
+Users can revoke their own keys from the MCP Connector settings panel by clicking **Revoke** next to the key. Administrators cannot revoke other users' keys through the admin panel. Revocation takes effect immediately on the next API call.
+
+### How many API keys can a user have?
+
+There is no enforced limit. Users can generate as many keys as they need — for example, one per device or one per Claude Desktop profile.
 
 ---
 

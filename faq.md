@@ -200,6 +200,44 @@ Use the GitHub Corpus Repo or GitLab Corpus Repo source pointing to a repository
 
 ---
 
+## MCP Connector and Claude Desktop
+
+### What is the MCP Connector?
+
+The MCP Connector is a feature that lets Claude Desktop search your mycorpus knowledge bases as part of a conversation. Instead of switching between applications, you ask Claude a question and Claude searches your corpus automatically to find relevant answers. The connection uses the Model Context Protocol, an open standard for connecting AI assistants to external data sources.
+
+### Do I need a special plan to use the MCP Connector?
+
+No. The MCP Connector is available to all registered users regardless of plan tier.
+
+### How do I connect Claude Desktop to mycorpus?
+
+Open your settings in mycorpus (the person icon in the sidebar), go to the **MCP Connector** tab, and generate an API key. Copy the configuration snippet shown in the panel and paste it into the `mcpServers` section of your Claude Desktop configuration file (`claude_desktop_config.json`). Restart Claude Desktop. Claude will then have access to your mycorpus knowledge bases as search tools.
+
+### Is my API key the same as my mycorpus password?
+
+No. API keys are separate credentials generated specifically for the MCP Connector. They grant access to the MCP search endpoint only — they cannot be used to log into the mycorpus web interface or access conversation data. If an API key is lost or compromised, generate a new one and revoke the old one from the MCP Connector settings tab.
+
+### Can I see what Claude Desktop is searching?
+
+Claude Desktop uses MCP tools transparently — you can see when Claude calls a corpus search tool in the Claude Desktop interface. The tool returns a set of relevant passages, which Claude uses to construct its answer.
+
+### What is CORPUS.md?
+
+CORPUS.md is a description of what a corpus covers. It tells Claude Desktop which knowledge base to use for which questions. When Claude Desktop calls `list_corpora`, it receives the CORPUS.md description for each corpus. A well-written CORPUS.md helps Claude pick the right corpus automatically.
+
+Administrators can write CORPUS.md manually from the corpus detail panel, upload it as a file in a GitHub or GitLab source repository, or let mycorpus generate one automatically during the corpus build.
+
+### What happens if I have multiple corpora — how does Claude know which one to search?
+
+Claude Desktop calls `list_corpora` to see all available corpora and their CORPUS.md descriptions. Based on the content of the question and the descriptions, Claude selects the most relevant corpus to search. You can also ask Claude explicitly to search a specific corpus by name.
+
+### Can I use the MCP Connector from the claude.ai website instead of Claude Desktop?
+
+Not currently. The claude.ai web interface uses a different connection method for external data sources (OAuth 2.0) that mycorpus does not yet support. The MCP Connector works with Claude Desktop only. Support for claude.ai is planned for a future release.
+
+---
+
 ## Administrators and Roles
 
 ### What can an administrator do that a regular user cannot?
