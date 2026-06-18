@@ -243,7 +243,7 @@ Ingests selected files from all public repositories belonging to a GitHub user o
 
 - **GitHub User / Org**: The GitHub username or organisation name whose repositories to scan.
 - **Personal Access Token**: Optional. A GitHub PAT increases the API rate limit and allows access to private repositories. The token is stored encrypted and is never returned to the browser; the UI shows only whether a token has been configured.
-- **Files to fetch**: A comma-separated list of filenames to extract from each repository. Defaults to `README.md`. You can add or change filenames such as `CHANGELOG.md` or `CONTRIBUTING.md`.
+- **Files to fetch**: A comma-separated list of filenames to extract from each repository. Defaults to `README.md, CLAUDE.md`. You can add or change filenames such as `CHANGELOG.md` or `CONTRIBUTING.md`.
 - **Repo filter**: An optional comma-separated list of repository names. If provided, only repositories whose names match are ingested. Leave blank to ingest all repositories.
 
 You can add multiple GitHub source entries if you need to include repositories from more than one user or organisation.
@@ -261,6 +261,8 @@ Ingests the full content of a single GitHub repository, optionally scoped to a d
 - **Path**: An optional subdirectory path within the repository. Leave blank to ingest the entire repository.
 - **Token**: A GitHub PAT or fine-grained access token for private repositories. Stored securely and never returned to the browser.
 
+Supported file types: `.txt`, `.md`, `.rst`, `.pdf`, `.docx`. Files with the `.url` extension trigger a web crawl — the file should contain one URL per line, or a JSON object with `{"url": "...", "crawl_links": true}`.
+
 Use this source type when you want to ingest the complete content of a documentation or knowledge repository rather than just selected files across many repos.
 
 ---
@@ -271,9 +273,9 @@ Ingests selected files from all repositories belonging to a GitLab user or group
 
 **Fields:**
 
-- **GitLab host**: The GitLab instance hostname. Defaults to `gitlab.com`. Change this for self-hosted GitLab installations.
+- **GitLab host**: The GitLab instance hostname. Defaults to `gitlab.com`.
 - **GitLab user or group**: The username or group name whose repositories to scan.
-- **Files to include**: Filenames to extract from each repository. Defaults to `README.md`.
+- **Files to fetch**: Filenames to extract from each repository. Defaults to `README.md`.
 - **Repo filter**: Optional comma-separated list of repository names to limit ingestion.
 - **Access Token**: A GitLab personal access token. Stored securely and the UI shows only whether one has been configured.
 
@@ -290,6 +292,8 @@ Ingests the full content of a single GitLab repository, optionally scoped to a p
 - **Branch**: Branch to read from. Defaults to `main`.
 - **Path**: Optional subdirectory to scope the ingestion.
 - **Token**: GitLab access token for private repositories. Stored securely.
+
+Supported file types: `.txt`, `.md`, `.rst`, `.pdf`, `.docx`. Files with the `.url` extension trigger a web crawl — the file should contain one URL per line, or a JSON object with `{"url": "...", "crawl_links": true}`.
 
 ---
 
@@ -410,7 +414,7 @@ This section is relevant only to users with admin or superadmin roles.
 
 **How do I change the token tracking mode?**
 
-In the admin panel, select the Users tab. Choose either Per User or Shared Pool, then click **Save**. The change takes effect immediately.
+In the admin panel, select the Users tab. Choose either Per User or Shared Pool. The change takes effect immediately.
 
 **What is the monthly token budget?**
 
@@ -451,12 +455,12 @@ This section is relevant only to users with admin or superadmin roles.
 
 **Can the application be customised for my organisation?**
 
-Yes. Administrators can configure the following in the admin panel:
+Yes. Administrators can configure the following in the admin panel's **Branding tab**. The Branding tab contains a Login Page section and a Links section:
 
-- **Login Page tab — App Name**: Shown in the sidebar and on the sign-in screen.
-- **Login Page tab — Tagline**: Displayed below the app name on the sign-in screen.
-- **Login Page tab — Feature bullets**: Bullet points shown on the sign-in page, one per line.
-- **Links tab — Navigation links**: Custom links displayed in the sidebar below the New Chat button, visible to all users. Each link has a label and a URL.
+- **App Name** (Login Page section): Shown in the sidebar and on the sign-in screen.
+- **Tagline** (Login Page section): Displayed below the app name on the sign-in screen.
+- **Feature bullets** (Login Page section): Bullet points shown on the sign-in page, one per line.
+- **Navigation links** (Links section): Custom links displayed in the sidebar below the New Chat button, visible to all users. Each link has a label and a URL.
 
 Changes to branding and links take effect immediately for new visitors.
 
@@ -490,15 +494,15 @@ This section is relevant only to users with admin or superadmin roles.
 
 **What is the Support tab?**
 
-The Support tab in the admin panel provides contact information and links for getting help with your My Corpus deployment. The support email address shown there is also displayed on the Plan tab when users want to inquire about upgrading to a paid tier.
+The Support tab in the admin panel provides contact information and links for getting help with your My Corpus deployment.
 
 ---
 
 ## Plan Tiers
 
-My Corpus is offered on four plan tiers. Only the Free plan is currently available; paid plans are coming soon.
+My Corpus is offered on four plan tiers.
 
-**Free — $0/month**
+**Free — 90-day trial**
 
 - Up to 5 users
 - Up to 5 corpora
@@ -542,7 +546,7 @@ My Corpus is offered on four plan tiers. Only the Free plan is currently availab
 - SAML / OIDC login: included
 - Scheduled corpus rebuilds: included
 
-To inquire about a paid plan, contact support using the email address shown in the admin panel under the Plan tab.
+To inquire about a paid plan, contact your administrator.
 
 ---
 

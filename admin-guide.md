@@ -141,18 +141,23 @@ uses `type=public` regardless of PAT scope.
 
 Crawls the rendered web pages associated with a GitHub repository rather than
 the raw file tree. Useful for repositories that publish documentation sites.
-Uses the same authentication fields as the GitHub ingestor.
+
+| Field   | Required | Description |
+|---------|----------|-------------|
+| repo    | Yes      | GitHub repository path (e.g. `owner/repo`) |
+| branch  | No       | Branch to use (default: `main`) |
+| path    | No       | Path within the repository to scope the crawl |
+| token   | Yes      | Personal access token |
 
 ### GitLab — readme/file ingestor
 
 Fetches a fixed list of files from every project in a GitLab user namespace
-or group. Works with both gitlab.com and self-hosted GitLab instances.
+or group.
 
 | Field         | Required | Description |
 |---------------|----------|-------------|
 | user          | Yes      | GitLab username or group path |
 | token         | Yes      | GitLab personal access token |
-| host          | No       | GitLab hostname (default: `gitlab.com`) |
 | files         | No       | File paths to fetch per project (default: `["README.md"]`) |
 | repo_filter   | No       | List of project path names to include; all projects if omitted |
 
@@ -163,7 +168,13 @@ and the remaining files continue to be fetched.
 ### GitLab Corpus — web crawler anchored to a GitLab project
 
 Crawls rendered documentation pages associated with a GitLab project.
-Equivalent to the GitHub Corpus ingestor but for GitLab.
+
+| Field   | Required | Description |
+|---------|----------|-------------|
+| repo    | Yes      | GitLab project path (e.g. `group/project`) |
+| branch  | No       | Branch to use (default: `main`) |
+| path    | No       | Path within the project to scope the crawl |
+| token   | Yes      | Personal access token |
 
 ### YouTube
 
@@ -177,7 +188,8 @@ Fetches the title and description of every video in a YouTube channel.
 The ingestor uses the `search.list` API to enumerate all video IDs in the
 channel, then calls `videos.list` in batches of 50 to retrieve full
 descriptions (search snippets are truncated to ~300 characters by the API).
-The corpus document for each video is: `{title}\n\n{description}`.
+The corpus document for each video is `{title}\n\n{description}` when a
+description is present, or just the title when the description is empty.
 
 Note: this ingestor indexes video metadata (title + description) only. Video
 transcripts are not fetched.
@@ -524,6 +536,25 @@ time. It can also be changed at runtime via the Plan API (admin only), which
 updates the CONFIG record in DynamoDB, resets token counters to zero, and
 resets the token tracking mode to shared.
 
+### Downgrade behavior
+
+Switching to a lower-paid tier (e.g. Business → Pro) via the Plan API purges
+all non-superadmin users from both Cognito and DynamoDB. Affected users must
+re-register under the new plan's lower user cap. Superadmin accounts are never
+affected by a purge.
+
+Downgrading to the free tier is not permitted through the Plan API. The free
+tier can only be reached by cancelling the subscription, which is handled
+outside the admin UI.
+
+### Free trial
+
+New deployments on the free tier start a 90-day trial period. The trial start
+date is recorded on first use and is not reset if the plan is later upgraded
+and downgraded back to free. When 15 or fewer days remain, the UI shows a
+warning banner. When the trial expires, the `trial_expired` flag is set and
+further usage is blocked until the deployment is upgraded to a paid tier.
+
 ---
 
 ## Branding and Settings
@@ -714,3 +745,19 @@ details for any failed sources, the total chunk count, and an attached
 CloudWatch log. Notifications require SMTP to be configured via the
 `smtp_server`, `smtp_port`, `smtp_user`, and `smtp_password` Terraform
 variables. If SMTP is not configured, notifications are silently skipped.
+
+**What happens to users when I downgrade to a lower plan tier?**
+
+Switching to a lower-paid tier via the Plan API immediately purges all
+non-superadmin users from Cognito and DynamoDB. Superadmin accounts are
+preserved. Purged users must re-register once the new plan is active. Note
+that downgrading to the free tier is not permitted through the Plan API;
+that requires cancelling the subscription outside the admin UI.
+
+**What is the free trial and when does it expire?**
+
+New deployments on the free tier receive a 90-day trial period. The trial
+clock starts on first use and cannot be reset. When 15 or fewer days remain,
+the UI displays a warning banner. When the trial expires, further usage is
+blocked until the deployment is upgraded to a paid tier. The trial only applies
+to the free tier; paid tiers are not subject to a trial period.

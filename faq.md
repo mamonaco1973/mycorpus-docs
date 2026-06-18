@@ -62,6 +62,14 @@ Yes. All your past conversations are listed in the left sidebar, grouped by rece
 
 Yes. Hover over the conversation in the sidebar and click the delete option. Deletion is permanent and cannot be undone.
 
+### Can I cancel a query while it is processing?
+
+Yes. While mycorpus is generating an answer, a **Cancel** button appears in the response area. Clicking it stops the polling and dismisses the pending response. The query may still complete on the server, but the result will not be displayed.
+
+### How do I choose which corpus to search?
+
+If your administrator has configured multiple corpora, a corpus picker appears above the chat input. Select the corpus you want to search before sending your question. New conversations are pinned to the selected corpus. When you reopen an existing conversation, the picker automatically switches to match that conversation's corpus.
+
 ---
 
 ## Sources and Citations
@@ -162,13 +170,13 @@ You cannot upload documents as a regular user. Administrators can upload documen
 
 mycorpus supports nine source types:
 
-**GitHub** — fetches specific files (e.g. README.md) from all repositories belonging to a GitHub user account. Useful for indexing documentation spread across many repos.
+**GitHub** — fetches specific files (e.g. README.md) from all public repositories belonging to a GitHub user account. Useful for indexing documentation spread across many repos.
 
 **GitHub Corpus Repo** — downloads every supported file from a single GitHub repository (or subdirectory). Treats the repo as a document store. Supports .txt, .md, .rst, .pdf, .docx, and .url files.
 
-**GitLab** — equivalent to the GitHub source but for GitLab users and groups. Supports self-hosted GitLab instances.
+**GitLab** — equivalent to the GitHub source but for GitLab users and groups.
 
-**GitLab Corpus Repo** — equivalent to GitHub Corpus Repo but for GitLab projects. Supports self-hosted instances.
+**GitLab Corpus Repo** — equivalent to GitHub Corpus Repo but for GitLab projects.
 
 **YouTube** — indexes video titles and descriptions from a YouTube channel's public videos. Requires a YouTube Data API v3 key.
 
@@ -194,7 +202,7 @@ When `crawl_links` is `true`, the crawler follows same-domain links found on the
 
 ### How do I set up automatic corpus updates?
 
-Use the GitHub Corpus Repo or GitLab Corpus Repo source pointing to a repository that your team maintains. When documents in the repository are updated, the next corpus build will pick them up automatically. Administrators can trigger a build at any time from the corpus detail panel.
+Use the GitHub Corpus Repo or GitLab Corpus Repo source pointing to a repository that your team maintains. When documents in the repository are updated, the next corpus build will pick them up automatically. Administrators can trigger a build at any time from the corpus detail panel. On Pro and Business plans, corpus builds can also be scheduled to run automatically on a recurring basis.
 
 ---
 
@@ -242,6 +250,14 @@ Superadmin accounts are defined at deployment time by the system operator via th
 
 Yes. Any user can be promoted to Admin role through the Users tab. There can be as many admins as needed. Promoted admins can manage users and configure identity providers. Creating and configuring corpora, managing branding, and triggering builds require the Superadmin role, which is limited to the email addresses specified at deployment time.
 
+### What is the difference between closed-access mode and disabling registrations?
+
+These are two separate controls. Closed-access mode (the access mode setting) means new accounts are created in a denied state and must be manually approved by an admin before the user can access the chat. Disabling registrations prevents new accounts from being created at all — users who attempt to sign up will be blocked before a record is created. Existing users and admins are unaffected by either setting. The registration toggle is available in the Identity tab of the admin panel. The closed-access mode control is available in the Users tab.
+
+### Can I pre-authorise a user before they register?
+
+Yes. Admins can set a user's role to "allowed" or "admin" by email address before the user has registered. When that user signs up, their pre-set role is applied immediately, bypassing any approval requirement even in closed-access mode.
+
 ---
 
 ## Troubleshooting
@@ -262,6 +278,8 @@ The knowledge base reflects content from the last corpus build. If the source ma
 
 Open the build log in the corpus detail view. Failed sources are clearly marked. Common causes include expired API keys or access tokens, private repositories whose tokens have been rotated, URLs that have gone offline or returned non-200 responses, and PDF or DOCX files that are password-protected or corrupted. Fix the source configuration and trigger a new build.
 
+After every build completes or fails, superadmin email addresses receive an automated build summary. The email lists each source, its document count, and any errors, and includes the last 1,000 log events from the build as an attachment. This makes it straightforward to diagnose failures without opening the admin panel.
+
 ### Why does the corpus build take a long time?
 
 Build time depends on the volume of content being processed. Embedding each text chunk through the AI model takes a fraction of a second, but a corpus with tens of thousands of chunks can take an hour or more. Web crawls that follow links add time proportional to the number of pages fetched. Large PDF files are also slower to process than plain text.
@@ -276,17 +294,17 @@ Each corpus has its own independent build process. You can build multiple corpor
 
 ### What plan tiers are available?
 
-mycorpus is available in four tiers: Free, Basic, Pro, and Business. The tier controls the number of users, the number of corpora, the chunk limit per corpus, the monthly token budget, and which identity providers are available.
+mycorpus is available in four tiers: Free, Basic, Pro, and Business. The tier controls the number of users, the number of corpora, the chunk limit per corpus, the monthly token budget, which identity providers are available, and whether scheduled corpus rebuilds are supported.
 
 ### What is the difference between the plans?
 
-The Free plan supports up to 5 users, 5 corpora, 20,000 chunks per corpus, and a 1 million token monthly budget. Google, SAML, and OIDC login are not available.
+The Free plan supports up to 5 users, 5 corpora, 20,000 chunks per corpus, and a 1 million token monthly budget. Google, SAML, and OIDC login are not available. Scheduled corpus rebuilds are not available. The Free plan includes a 90-day trial period, after which new queries are blocked until the plan is upgraded.
 
-The Basic plan supports up to 10 users, 10 corpora, 30,000 chunks per corpus, and a 5 million token monthly budget. Google, SAML, and OIDC login are not available.
+The Basic plan supports up to 10 users, 10 corpora, 30,000 chunks per corpus, and a 5 million token monthly budget. Google, SAML, and OIDC login are not available. Scheduled corpus rebuilds are not available.
 
-The Pro plan supports up to 25 users, 25 corpora, 50,000 chunks per corpus, and a 15 million token monthly budget. Google login is available. SAML and OIDC login are not available.
+The Pro plan supports up to 25 users, 25 corpora, 50,000 chunks per corpus, and a 15 million token monthly budget. Google login is available. SAML and OIDC login are not available. Scheduled corpus rebuilds are available.
 
-The Business plan supports unlimited users, 100 corpora, 100,000 chunks per corpus, and a 30 million token monthly budget. Google, SAML, and OIDC login are all available.
+The Business plan supports unlimited users, 100 corpora, 100,000 chunks per corpus, and a 30 million token monthly budget. Google, SAML, and OIDC login are all available. Scheduled corpus rebuilds are available.
 
 The monthly token budget is the total available to all users on the tenant each calendar month. Both a shared pool limit and a per-user limit are always enforced simultaneously. The token tracking setting controls which figure is shown in the usage display.
 
