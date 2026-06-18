@@ -24,7 +24,7 @@ If your administrator has configured Google login or enterprise SSO (SAML or OID
 
 ### Why is my account pending after I sign up?
 
-Your administrator has enabled closed-access mode, which means new accounts must be manually approved before they can use the chat. Your administrator will receive a notification and can approve your account from the admin panel. Contact your administrator if approval is taking too long.
+Your administrator has enabled closed-access mode, which means new accounts must be manually approved before they can use the chat. There is no automatic notification — your administrator must check the Users tab in the admin panel to see pending accounts and approve yours from there. Contact your administrator directly if approval is taking too long.
 
 ### I forgot my password. How do I reset it?
 
@@ -56,7 +56,7 @@ Click **New conversation** in the left sidebar. Each conversation is independent
 
 ### Can I see my conversation history?
 
-Yes. All your past conversations are listed in the left sidebar, most recent first. Click any conversation to reopen it. You can continue asking questions in any previous conversation.
+Yes. All your past conversations are listed in the left sidebar, grouped by recency (Today, Yesterday, Last 7 days, Last 30 days, Older). Click any conversation to reopen it. You can continue asking questions in any previous conversation.
 
 ### Can I delete a conversation?
 
@@ -84,19 +84,15 @@ AI language models have a small amount of variability in how they express answer
 
 ### What is a token budget?
 
-A token is the basic unit of text that the AI model processes — roughly one word. Each time mycorpus generates a response, it consumes tokens from your weekly budget. Tokens are used to process the search results, the conversation history, and the generated answer.
+A token is the basic unit of text that the AI model processes — roughly one word. Each time mycorpus generates a response, it consumes tokens. Your plan includes a monthly token budget that covers all users on the tenant. Tokens are used to process the search results, the conversation history, and the generated answer.
 
 ### How many tokens do I have?
 
-Your token budget is set by your administrator and depends on your plan tier. Token budgets reset every Sunday at 01:00 UTC. You can see your current usage and remaining budget in the interface.
+Your available tokens depend on your plan's monthly budget and how your administrator has configured token tracking. The system always enforces two limits simultaneously: a shared pool limit (the total monthly plan budget across all users) and a per-user limit (the plan budget divided equally among the user cap). A query is blocked if either limit is exceeded. The token tracking setting controls which of these figures is shown in the usage display — per-user mode shows your individual allocation, while shared mode shows the combined pool — but both limits are always active regardless of how the display is set. You can see your current usage and remaining budget in the interface.
 
 ### What happens when I run out of tokens?
 
-You will see a message indicating that your weekly token budget is exhausted and when it resets. You can still browse and read your past conversations but cannot submit new questions until the budget resets on Sunday at 01:00 UTC.
-
-### Why does my administrator have a higher token budget?
-
-Administrator and Owner accounts automatically receive a higher token multiplier. This ensures that administrators can test the system, verify corpus quality, and assist users even when approaching the standard budget limit.
+You will see a message indicating that your monthly token budget is exhausted and when it resets. You can still browse and read your past conversations but cannot submit new questions until the budget resets on the 1st of the next calendar month.
 
 ---
 
@@ -148,7 +144,7 @@ A corpus is a named, searchable collection of content. Administrators build corp
 
 ### How current is the information in the knowledge base?
 
-The knowledge base reflects the content at the time of the last corpus build. If the source material has changed since then, the answers may not reflect those changes. Administrators can rebuild the corpus at any time to pick up updated content. On Pro and Business plans, scheduled rebuilds can keep the corpus automatically up to date.
+The knowledge base reflects the content at the time of the last corpus build. If the source material has changed since then, the answers may not reflect those changes. Administrators can rebuild the corpus at any time to pick up updated content.
 
 ### Why can't mycorpus answer my question even though I know the information is in the documents?
 
@@ -164,9 +160,9 @@ You cannot upload documents as a regular user. Administrators can upload documen
 
 ### What types of sources can be loaded into a corpus?
 
-mycorpus supports eight source types:
+mycorpus supports nine source types:
 
-**GitHub** — fetches specific files (e.g. README.md) from all repositories belonging to a GitHub user or organisation. Useful for indexing documentation spread across many repos.
+**GitHub** — fetches specific files (e.g. README.md) from all repositories belonging to a GitHub user account. Useful for indexing documentation spread across many repos.
 
 **GitHub Corpus Repo** — downloads every supported file from a single GitHub repository (or subdirectory). Treats the repo as a document store. Supports .txt, .md, .rst, .pdf, .docx, and .url files.
 
@@ -174,13 +170,15 @@ mycorpus supports eight source types:
 
 **GitLab Corpus Repo** — equivalent to GitHub Corpus Repo but for GitLab projects. Supports self-hosted instances.
 
-**YouTube** — downloads and indexes transcripts from a YouTube channel's public videos. Requires a YouTube Data API v3 key.
+**YouTube** — indexes video titles and descriptions from a YouTube channel's public videos. Requires a YouTube Data API v3 key.
 
-**Web Page** — fetches and indexes content from one or more URLs. Optional link crawling follows same-domain links up to 100 pages deep.
+**Web Page** — fetches and indexes content from one or more URLs. Optional link crawling follows same-domain links found on the root page (one level deep), up to 100 pages in total.
 
 **Q&A** — lets administrators enter question-and-answer pairs directly. Ideal for FAQs, policies, and known issues.
 
-**Document Upload** — upload files directly through the admin interface. Supports .txt, .md, .pdf, and .docx.
+**Paste Text** — lets administrators paste plain text content directly into the corpus. Useful for short documents, policy snippets, or any text that does not exist as a file.
+
+**Upload Files** — upload files directly through the admin interface. Supports PDF, DOCX, and any text-based file (TXT, MD, CSV, source code, etc.). Multiple files can be uploaded in one operation.
 
 ### What is a .url file and how does it work?
 
@@ -192,49 +190,37 @@ The file can contain either a plain URL on the first line, or a JSON object:
 {"url": "https://example.com", "crawl_links": true, "title": "Optional title"}
 ```
 
-When `crawl_links` is `true`, the crawler follows same-domain links up to 100 pages deep. This allows you to use a GitHub or GitLab repo as a corpus configuration file that also triggers web crawls.
+When `crawl_links` is `true`, the crawler follows same-domain links found on the root page (one level deep), fetching up to 100 pages in total. This allows you to use a GitHub or GitLab repo as a corpus configuration file that also triggers web crawls.
 
 ### How do I set up automatic corpus updates?
 
-Use the GitHub Corpus Repo or GitLab Corpus Repo source pointing to a repository that your team maintains. When documents in the repository are updated, the next corpus build will pick them up automatically. On Pro and Business plans, you can configure a scheduled rebuild (daily or weekly) so the corpus stays current without manual intervention.
+Use the GitHub Corpus Repo or GitLab Corpus Repo source pointing to a repository that your team maintains. When documents in the repository are updated, the next corpus build will pick them up automatically. Administrators can trigger a build at any time from the corpus detail panel.
 
 ---
 
-## MCP Connector and Claude Desktop
+## Claude Connector
 
-### What is the MCP Connector?
+### What is the Claude Connector?
 
-The MCP Connector is a feature that lets Claude Desktop search your mycorpus knowledge bases as part of a conversation. Instead of switching between applications, you ask Claude a question and Claude searches your corpus automatically to find relevant answers. The connection uses the Model Context Protocol, an open standard for connecting AI assistants to external data sources.
+The Claude Connector lets you search your mycorpus knowledge bases directly from claude.ai. Instead of switching between applications, you ask Claude a question and Claude searches your corpus automatically to find relevant answers. The connection uses the Model Context Protocol (MCP), an open standard for connecting AI assistants to external data sources.
 
-### Do I need a special plan to use the MCP Connector?
+### Do I need a special plan to use the Claude Connector?
 
-No. The MCP Connector is available to all registered users regardless of plan tier.
+No. The Claude Connector is available to all registered users regardless of plan tier.
 
-### How do I connect Claude Desktop to mycorpus?
+### How do I connect claude.ai to mycorpus?
 
-Open your settings in mycorpus (the person icon in the sidebar), go to the **MCP Connector** tab, and generate an API key. Copy the configuration snippet shown in the panel and paste it into the `mcpServers` section of your Claude Desktop configuration file (`claude_desktop_config.json`). Restart Claude Desktop. Claude will then have access to your mycorpus knowledge bases as search tools.
-
-### Is my API key the same as my mycorpus password?
-
-No. API keys are separate credentials generated specifically for the MCP Connector. They grant access to the MCP search endpoint only — they cannot be used to log into the mycorpus web interface or access conversation data. If an API key is lost or compromised, generate a new one and revoke the old one from the MCP Connector settings tab.
-
-### Can I see what Claude Desktop is searching?
-
-Claude Desktop uses MCP tools transparently — you can see when Claude calls a corpus search tool in the Claude Desktop interface. The tool returns a set of relevant passages, which Claude uses to construct its answer.
+Open your settings in mycorpus (the person icon in the sidebar) and go to the **Claude Connector** tab. Copy the MCP Server URL shown there. In claude.ai, go to **Settings → Connectors → Add custom connector**, paste the MCP Server URL into the URL field, and click **Connect**. A login window will open — sign in with your mycorpus account. Once authenticated, your knowledge bases are available as search tools in every claude.ai conversation.
 
 ### What is CORPUS.md?
 
-CORPUS.md is a description of what a corpus covers. It tells Claude Desktop which knowledge base to use for which questions. When Claude Desktop calls `list_corpora`, it receives the CORPUS.md description for each corpus. A well-written CORPUS.md helps Claude pick the right corpus automatically.
+CORPUS.md is a description of what a corpus covers. It tells Claude which knowledge base to use for which questions. When Claude calls `list_corpora`, it receives the CORPUS.md description for each corpus. A well-written CORPUS.md helps Claude pick the right corpus automatically.
 
 Administrators can write CORPUS.md manually from the corpus detail panel, upload it as a file in a GitHub or GitLab source repository, or let mycorpus generate one automatically during the corpus build.
 
 ### What happens if I have multiple corpora — how does Claude know which one to search?
 
-Claude Desktop calls `list_corpora` to see all available corpora and their CORPUS.md descriptions. Based on the content of the question and the descriptions, Claude selects the most relevant corpus to search. You can also ask Claude explicitly to search a specific corpus by name.
-
-### Can I use the MCP Connector from the claude.ai website instead of Claude Desktop?
-
-Not currently. The claude.ai web interface uses a different connection method for external data sources (OAuth 2.0) that mycorpus does not yet support. The MCP Connector works with Claude Desktop only. Support for claude.ai is planned for a future release.
+Claude calls `list_corpora` to see all available corpora and their CORPUS.md descriptions. Based on the content of the question and the descriptions, Claude selects the most relevant corpus to search. You can also ask Claude explicitly to search a specific corpus by name.
 
 ---
 
@@ -242,15 +228,19 @@ Not currently. The claude.ai web interface uses a different connection method fo
 
 ### What can an administrator do that a regular user cannot?
 
-Administrators can access the admin panel, which gives them the ability to create and configure corpora, manage users (approve, deny, promote, delete), configure identity providers, customise the login page and branding, and trigger corpus builds. Regular users can only access the chat interface.
+There are two distinct levels of administrative access in mycorpus.
 
-### What is an Owner account?
+A user promoted to the **Admin role** through the Users tab can access the admin panel to manage users (approve, deny, promote, delete) and configure identity providers (Google, SAML, OIDC). Regular users can only access the chat interface.
 
-Owner accounts are defined at deployment time by the system operator. They bypass all user caps and token limits, cannot be deleted or denied through the admin interface, and always have full access regardless of plan tier. The Owner role is intended for the system operator and is separate from the Admin role that can be assigned through the panel.
+A **Superadmin** — an account whose email is listed in the `ADMIN_EMAILS` system configuration — has all of the above capabilities and additionally can create and configure corpora, manage branding, and trigger corpus builds. Corpus management and branding are restricted exclusively to Superadmin accounts.
+
+### What is a Superadmin account?
+
+Superadmin accounts are defined at deployment time by the system operator via the `ADMIN_EMAILS` configuration. They bypass all user caps and registration gates, cannot be deleted or denied through the admin interface, and always have full access regardless of plan tier. The Superadmin role is intended for the system operator and is separate from the Admin role that can be assigned through the panel.
 
 ### Can there be multiple administrators?
 
-Yes. Any user can be promoted to Admin role through the Users tab. There can be as many admins as needed. The Owner role is limited to the email addresses specified at deployment time.
+Yes. Any user can be promoted to Admin role through the Users tab. There can be as many admins as needed. Promoted admins can manage users and configure identity providers. Creating and configuring corpora, managing branding, and triggering builds require the Superadmin role, which is limited to the email addresses specified at deployment time.
 
 ---
 
@@ -274,7 +264,7 @@ Open the build log in the corpus detail view. Failed sources are clearly marked.
 
 ### Why does the corpus build take a long time?
 
-Build time depends on the volume of content being processed. Embedding each text chunk through the AI model takes a fraction of a second, but a corpus with tens of thousands of chunks can take an hour or more. Web crawls that follow links add time proportional to the number of pages fetched. Large PDF files and video transcripts are also slower to process than plain text.
+Build time depends on the volume of content being processed. Embedding each text chunk through the AI model takes a fraction of a second, but a corpus with tens of thousands of chunks can take an hour or more. Web crawls that follow links add time proportional to the number of pages fetched. Large PDF files are also slower to process than plain text.
 
 ### Can I run multiple corpus builds at the same time?
 
@@ -286,17 +276,19 @@ Each corpus has its own independent build process. You can build multiple corpor
 
 ### What plan tiers are available?
 
-mycorpus is available in four tiers: Free, Basic, Pro, and Business. The tier controls the number of users, the number of corpora, the chunk limit per corpus, the weekly token budget per user, and which identity providers are available.
+mycorpus is available in four tiers: Free, Basic, Pro, and Business. The tier controls the number of users, the number of corpora, the chunk limit per corpus, the monthly token budget, and which identity providers are available.
 
 ### What is the difference between the plans?
 
-The Free plan supports up to 5 users, 2 corpora, 10,000 chunks per corpus, and 100,000 tokens per user per week. Google, SAML, and OIDC login are not available.
+The Free plan supports up to 5 users, 5 corpora, 20,000 chunks per corpus, and a 1 million token monthly budget. Google, SAML, and OIDC login are not available.
 
-The Basic plan supports up to 10 users, 10 corpora, 25,000 chunks per corpus, and 250,000 tokens per user per week. Google, SAML, and OIDC login are not available.
+The Basic plan supports up to 10 users, 10 corpora, 30,000 chunks per corpus, and a 5 million token monthly budget. Google, SAML, and OIDC login are not available.
 
-The Pro plan supports up to 25 users, 25 corpora, 50,000 chunks per corpus, and 500,000 tokens per user per week. Google login is available. SAML and OIDC login are not available. Scheduled corpus rebuilds are available.
+The Pro plan supports up to 25 users, 25 corpora, 50,000 chunks per corpus, and a 15 million token monthly budget. Google login is available. SAML and OIDC login are not available.
 
-The Business plan has variable user and token limits negotiated per deployment. It supports up to 100 corpora and 100,000 chunks per corpus. Google, SAML, and OIDC login are all available. Scheduled corpus rebuilds are available.
+The Business plan supports unlimited users, 100 corpora, 100,000 chunks per corpus, and a 30 million token monthly budget. Google, SAML, and OIDC login are all available.
+
+The monthly token budget is the total available to all users on the tenant each calendar month. Both a shared pool limit and a per-user limit are always enforced simultaneously. The token tracking setting controls which figure is shown in the usage display.
 
 ### How do I upgrade my plan?
 

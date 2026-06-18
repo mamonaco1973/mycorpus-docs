@@ -1,0 +1,8 @@
+# mycorpus.ai documentation corpus
+# Explicitly lists the three doc files — excludes CORPUS.md, CLAUDE.md,
+# README.md, and NODOC.md which are repo metadata, not user content.
+
+[files]
+source = user-guide.md
+source = faq.md
+source = admin-guide.md
