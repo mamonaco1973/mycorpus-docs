@@ -1,4 +1,3 @@
 # Do not document
-
-- "Can I link directly to a conversation?" - This is not supported in this release.
+- Support mode
 - GitLab and GitHub private instances are not supported - do not document

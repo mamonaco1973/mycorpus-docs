@@ -1,0 +1,12 @@
+# North Carolina County Geography
+# Crawls the county list page then follows each county article link.
+# Excludes the generic "County (United States)" disambiguation page
+# to keep the corpus focused on NC-specific content.
+
+[excludes]
+url = https://en.wikipedia.org/wiki/County_(United_States)
+
+[web]
+url = https://en.wikipedia.org/wiki/List_of_counties_in_North_Carolina
+crawl_links = true
+max_crawl = 200

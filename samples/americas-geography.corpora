@@ -1,0 +1,7 @@
+# Americas Geography — Wikipedia articles with link crawl
+
+[web]
+url = https://en.wikipedia.org/wiki/North_America
+url = https://en.wikipedia.org/wiki/South_America
+crawl_links = true
+max_crawl = 200

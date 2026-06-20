@@ -1,0 +1,43 @@
+# UK News Corpus
+
+# ------------------------------------------------------------------------------
+# BBC News — most authoritative UK public broadcaster
+# ------------------------------------------------------------------------------
+[rss]
+url = https://feeds.bbci.co.uk/news/uk/rss.xml
+max_items = 100
+crawl_links = false
+
+[rss]
+url = https://feeds.bbci.co.uk/news/world/rss.xml
+max_items = 100
+crawl_links = false
+
+# ------------------------------------------------------------------------------
+# Broadcast — Channel 4 News
+# ------------------------------------------------------------------------------
+[rss]
+url = https://www.channel4.com/news/rss
+max_items = 100
+crawl_links = false
+
+# ------------------------------------------------------------------------------
+# Broadsheet — Guardian, Telegraph
+# ------------------------------------------------------------------------------
+[rss]
+url = https://www.theguardian.com/uk/rss
+max_items = 100
+crawl_links = false
+
+[rss]
+url = https://www.telegraph.co.uk/rss.xml
+max_items = 100
+crawl_links = false
+
+# ------------------------------------------------------------------------------
+# Business / Finance — City A.M. (free, no paywall)
+# ------------------------------------------------------------------------------
+[rss]
+url = https://www.cityam.com/feed/
+max_items = 100
+crawl_links = false

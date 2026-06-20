@@ -20,20 +20,22 @@ Writing standards for this corpus (mandatory):
 - Full answers, not references: repeat key facts rather than saying "see above"
 - Plain prose: short bullet lists are fine, avoid heavy nesting or large tables
 - No relative links between sections
+- Branding: always write the product name as "MyCorpus.ai" — never "mycorpus", "MyCorpus", or any other casing
 
 Exclusions — read $docsDir\NODOC.md and do not document anything listed there.
 Do not add, mention, or allude to excluded features even if they appear in the source code.
 "@
 
 # Source files — globbed so new ingestors and frontend modules are picked up automatically
-$corePy     = (Get-ChildItem "$runtimeDir\03-core\code\*.py").FullName
-$ingestPy   = (Get-ChildItem "$runtimeDir\02-ingest\ingestors\*.py").FullName
-$webappJs   = (Get-ChildItem "$runtimeDir\04-webapp\js\*.js" -Recurse).FullName
-$webappHtml = @("$runtimeDir\04-webapp\index.html")
-$adminTf    = @("$runtimeDir\03-core\cognito.tf", "$runtimeDir\03-core\variables.tf")
+$corePy        = (Get-ChildItem "$runtimeDir\03-core\code\*.py").FullName
+$ingestPy      = (Get-ChildItem "$runtimeDir\02-ingest\ingestors\*.py").FullName
+$webappJs      = (Get-ChildItem "$runtimeDir\04-webapp\js\*.js" -Recurse).FullName
+$webappHtml    = @("$runtimeDir\04-webapp\index.html")
+$adminTf       = @("$runtimeDir\03-core\cognito.tf", "$runtimeDir\03-core\variables.tf")
+$runtimeReadme = @("$runtimeDir\README.md")
 
-$userSources  = @($corePy) + @($webappJs) + $webappHtml
-$adminSources = @($corePy) + @($ingestPy) + @($webappJs) + $webappHtml + $adminTf
+$userSources  = @($corePy) + @($webappJs) + $webappHtml + $runtimeReadme
+$adminSources = @($corePy) + @($ingestPy) + @($webappJs) + $webappHtml + $adminTf + $runtimeReadme
 
 # FAQ draws from both sets
 $faqSources = ($userSources + $adminSources) | Select-Object -Unique
@@ -49,7 +51,7 @@ $docs = @(
         Name    = "admin-guide.md"
         Path    = "$docsDir\admin-guide.md"
         Sources = $adminSources
-        Desc    = "administrator guide covering: corpora management, source type configuration, user management, identity provider setup (Google/SAML/OIDC), MCP connector, plans, branding, data security. Audience: administrators."
+        Desc    = "administrator guide covering: corpora management, source type configuration, user management, identity provider setup (Google/SAML/OIDC), MCP connector, plans, branding, data security. Audience: administrators. Must include a complete reference guide to .corpora files: format, all supported fields, examples, and how the runtime resolves and applies them."
     },
     @{
         Name    = "faq.md"
@@ -187,3 +189,26 @@ Fix every error listed. The source files are the ground truth — when in doubt,
 
 Write-Host ""
 Write-Host "All docs updated."
+
+# ---- Sample .corpora files ----
+Write-Host ""
+Write-Host "=== samples ==="
+$samplesDir     = "$docsDir\samples"
+$corporaSource  = "$runtimeDir\04-webapp\js\sources\corporaSamples.js"
+$samplesSentinel = "$tempDir\mcorpus_samples_sentinel"
+$samplesPrompt  = @"
+Read the file: $corporaSource
+
+It contains sample .corpora definitions embedded in JavaScript. Extract every sample and write each one as an individual file into the directory: $samplesDir
+
+Rules:
+- One file per sample
+- Use a descriptive kebab-case filename with a .corpora extension (e.g. github-repo.corpora)
+- File content must be only the raw .corpora content — no JavaScript, no markdown fences
+- Do not create any index or summary file
+
+When all sample files have been written, write a one-line summary of what was created (e.g. "Created 5 sample files") to: $samplesSentinel
+"@
+Write-Host "  [samples] extracting from corporaSamples.js..."
+Invoke-Claude $samplesPrompt $samplesSentinel | Out-Null
+Write-Host "  [samples] done — written to $samplesDir"

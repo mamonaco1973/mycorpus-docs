@@ -1,0 +1,14 @@
+# R language documentation corpus
+# Ingests the official CRAN manuals as URL sources.
+# Link crawling is enabled — sub-pages linked from each manual are also indexed.
+
+[web]
+url = https://cran.r-project.org/doc/manuals/r-release/R-intro.html
+url = https://cran.r-project.org/doc/manuals/r-release/R-data.html
+url = https://cran.r-project.org/doc/manuals/r-release/R-admin.html
+url = https://cran.r-project.org/doc/manuals/r-release/R-exts.html
+url = https://cran.r-project.org/doc/manuals/r-release/R-lang.html
+url = https://cran.r-project.org/doc/manuals/r-release/R-ints.html
+url = https://cran.r-project.org/doc/manuals/r-release/fullrefman.pdf
+crawl_links = true
+domain = *

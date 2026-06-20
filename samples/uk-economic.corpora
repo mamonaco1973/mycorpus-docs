@@ -1,0 +1,19 @@
+# UK Economic & Financial Intelligence Corpus
+# Pairs press-release RSS feeds with a crawl of ONS methodology docs
+
+[rss]
+url = https://www.bankofengland.co.uk/rss/publications
+max_items = 50
+crawl_links = true
+max_crawl = 1
+
+[rss]
+url = https://www.ons.gov.uk/feed?uri=/releases
+max_items = 50
+crawl_links = true
+max_crawl = 1
+
+[web]
+url = https://www.ons.gov.uk/methodology
+crawl_links = true
+max_crawl = 30

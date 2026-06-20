@@ -1,4 +1,4 @@
-# My Corpus — User Guide
+# MyCorpus.ai — User Guide
 
 ## Table of Contents
 
@@ -8,24 +8,30 @@
 - [Conversations](#conversations)
 - [Sources and Citations](#sources-and-citations)
 - [Token Budgets](#token-budgets)
+- [Claude Connector](#claude-connector)
 - [Corpora](#corpora)
 - [Building a Corpus](#building-a-corpus)
 - [Source Types](#source-types)
-  - [GitHub (User Repositories)](#github-user-repositories)
-  - [GitHub Corpus (Single Repository)](#github-corpus-single-repository)
-  - [GitLab (User Repositories)](#gitlab-user-repositories)
-  - [GitLab Corpus (Single Repository)](#gitlab-corpus-single-repository)
+  - [GitHub](#github)
+  - [GitHub Corpus Repo](#github-corpus-repo)
+  - [GitLab](#gitlab)
+  - [GitLab Corpus Repo](#gitlab-corpus-repo)
   - [YouTube](#youtube)
   - [Q&A Pairs](#qa-pairs)
-  - [Web Pages](#web-pages)
+  - [Web Page](#web-page)
+  - [RSS / Atom Feed](#rss--atom-feed)
+  - [Google Drive](#google-drive)
   - [Paste Text](#paste-text)
   - [Upload Files](#upload-files)
+  - [ZIP Archive](#zip-archive)
+  - [Corpora File](#corpora-file)
 - [Admin: CORPUS.md](#admin-corpusmd)
 - [Admin: Managing Users](#admin-managing-users)
 - [Admin: Token Tracking](#admin-token-tracking)
 - [Admin: Access Mode and Registration](#admin-access-mode-and-registration)
 - [Admin: Appearance and Branding](#admin-appearance-and-branding)
 - [Admin: Identity and SSO](#admin-identity-and-sso)
+- [Admin: Settings](#admin-settings)
 - [Admin: Support](#admin-support)
 - [Plan Tiers](#plan-tiers)
 - [Troubleshooting](#troubleshooting)
@@ -34,11 +40,13 @@
 
 ## Getting Started
 
-My Corpus is a retrieval-augmented AI chat application. You ask questions in plain language and the system answers using content from one or more knowledge bases (called *corpora*) that have been built from your organisation's documents, repositories, web pages, and other sources.
+MyCorpus.ai is a retrieval-augmented AI chat application. You ask questions in plain language and the system answers using content from one or more knowledge bases (called *corpora*) that have been built from your organisation's documents, repositories, web pages, and other sources.
 
 Before you can chat, a corpus must be built by an administrator. If no corpus has been built yet, your questions will receive a message saying so. Contact your administrator if the knowledge base appears to be missing.
 
 The first time you visit the application after logging in, your account is registered automatically. On deployments where registration is open, this succeeds silently. On deployments where the administrator has enabled closed access, you must be pre-authorised before your first login will work.
+
+Deployments on the Free plan include a 90-day trial. The plan panel (Settings > Plan) shows trial status for the full duration of the trial. A countdown banner also appears in the main chat interface when 15 or fewer days remain. Once the trial expires, queries are blocked until the deployment is upgraded to a paid plan.
 
 ---
 
@@ -46,7 +54,7 @@ The first time you visit the application after logging in, your account is regis
 
 **How do I sign in?**
 
-Click the sign-in button on the landing page. You will be redirected to the Cognito Hosted UI. Enter your email and password. On Pro and Business plans, your administrator may have enabled Google login as an alternative. On Business plans, SAML or OIDC single-sign-on may also be available.
+Click the sign-in button on the landing page. You will be redirected to the Cognito Hosted UI. Enter your email and password. On Basic, Pro, and Business plans, your administrator may have enabled Google login as an alternative. On Business plans, SAML or OIDC single-sign-on may also be available.
 
 After authentication you are redirected back to the application. Your session tokens are stored locally in your browser. The application checks your token on every page load and silently refreshes it when it is close to expiring, so you will not normally be asked to sign in again during an active session.
 
@@ -98,7 +106,7 @@ Yes. Open the user menu (click your avatar in the sidebar), choose Settings, the
 
 **How do I contact my administrator?**
 
-Open the user menu (click your avatar in the sidebar) and click "Contact Admin". This opens a contact dialog with details for reaching the administrator.
+Open the user menu (click your avatar in the sidebar) and click "Contact Admin". This opens a contact dialog where you can send a message directly to all administrators. A copy of the message is sent to your email address as well.
 
 ---
 
@@ -114,15 +122,15 @@ The system includes a configurable number of previous completed question-and-ans
 
 **How are conversations named?**
 
-A new conversation starts with the default title `New conversation` (no trailing period). The first question you ask replaces this title automatically. The title is then fixed for the lifetime of the conversation.
+A new conversation starts with the default title `New conversation`. The first question you ask replaces this title automatically. The title is then fixed for the lifetime of the conversation.
 
 **How do I start a new conversation?**
 
-Click the **New Chat** button at the top of the sidebar. A new conversation is created immediately, pinned to whichever corpus is currently selected in the corpus picker above the input box.
+Click the **New Chat** button at the top of the sidebar. Clicking New Chat resets the interface but does not create a conversation immediately. The conversation is created (and pinned to the selected corpus) when you send your first message, so you can switch the corpus before sending without affecting the conversation.
 
 **How do I switch between conversations?**
 
-Click any conversation in the sidebar list. Conversations are shown newest first. The full question-and-answer history for the selected conversation loads immediately.
+Click any conversation in the sidebar list. Conversations are grouped by recency: Today, Yesterday, Last 7 days, Last 30 days, and Older. The full question-and-answer history for the selected conversation loads immediately.
 
 **How do I delete a conversation?**
 
@@ -144,9 +152,9 @@ Yes. Each completed answer includes a collapsible Sources section below the text
 
 The behaviour depends on the type of source:
 
-- Sources from uploaded files (PDFs, Word documents, and other files) show a document icon. Clicking one triggers a download of the original file.
+- Sources from uploaded files (PDFs, Word documents, and other files), ZIP archive contents, and Google Drive files show a document icon. Clicking one triggers a download of the original file.
 - Sources from web URLs and GitHub or GitLab pages show an arrow icon. Clicking one opens the source page in a new browser tab.
-- Sources from paste-text documents or Q&A pairs show a document icon with no link because there is no external URL.
+- Sources from paste-text entries or Q&A pairs show a document icon when no Source URL was set at configuration time. If a Source URL was provided, they render as an arrow link identical to URL-based sources.
 
 Duplicate sources (same URL) are deduplicated before display, so each unique source appears only once even if multiple chunks from it contributed to the answer.
 
@@ -176,6 +184,32 @@ Administrators can choose between two modes:
 In both modes the system enforces both the per-user allocation and the overall plan total. A query is blocked if either limit is exceeded.
 
 The administrator sets the tracking mode in the admin panel under the Users tab. The mode can be changed at any time.
+
+---
+
+## Claude Connector
+
+**What is the Claude Connector?**
+
+The Claude Connector lets you use your MyCorpus.ai knowledge bases directly inside claude.ai. Once connected, every claude.ai conversation can search your corpora as a tool, without opening the MyCorpus.ai interface.
+
+**How do I connect claude.ai to MyCorpus.ai?**
+
+Open the user menu (click your avatar in the sidebar), choose **Settings**, then click the **Claude Connector** tab.
+
+1. Copy the **MCP Server URL** displayed on the tab.
+2. In claude.ai, go to **Settings → Connectors → Add custom connector**.
+3. Paste the MCP Server URL into the URL field and click **Connect**.
+4. A login window will open — sign in with your MyCorpus.ai account.
+5. Once authenticated, your knowledge bases are available as tools in every claude.ai conversation.
+
+**What can the Claude Connector do?**
+
+After connecting, claude.ai can list your available knowledge bases and search any of them in response to your questions. The connector uses the same retrieval pipeline as the MyCorpus.ai chat interface, so results are identical.
+
+**What if the Claude Connector tab says to contact an administrator?**
+
+An administrator has disabled the Claude Connector for this deployment. Contact your administrator to enable it.
 
 ---
 
@@ -219,9 +253,17 @@ Open the admin panel by clicking the Corpora button in the sidebar (visible to a
 
 Build time depends on the number and size of sources. Small corpora with a few dozen documents may complete in a few minutes. Large corpora with thousands of files or many web pages may take considerably longer.
 
+**Can I cancel a corpus build in progress?** (Admin only)
+
+Yes. While a build is running, a **Cancel** button appears in the build log panel. Clicking it stops the running build. The corpus status will revert to its previous state. Cancelling does not delete any previously completed build; the corpus remains queryable using the last successful build.
+
 **Do I need to rebuild after adding a source?**
 
 Yes. Adding, editing, or removing a source marks the corpus as "pending changes". The corpus remains queryable with the previous build but will not reflect the new sources until you trigger a new build.
+
+**Can I schedule automatic corpus rebuilds?** (Admin only)
+
+Yes. Each corpus has a configurable rebuild schedule. Click **Schedule** in the corpus detail panel to open the schedule settings. On Free and Basic plans, scheduled rebuilds run automatically every Sunday at midnight UTC — the day cannot be changed. On Pro and Business plans, you can choose between daily rebuilds or weekly rebuilds on a configurable day of the week.
 
 **Can I download and re-upload source configuration?**
 
@@ -235,7 +277,7 @@ A corpus can draw content from any combination of the following source types.
 
 ---
 
-### GitHub (User Repositories)
+### GitHub
 
 Ingests selected files from all public repositories belonging to a GitHub user or organisation.
 
@@ -250,7 +292,7 @@ You can add multiple GitHub source entries if you need to include repositories f
 
 ---
 
-### GitHub Corpus (Single Repository)
+### GitHub Corpus Repo
 
 Ingests the full content of a single GitHub repository, optionally scoped to a directory path and branch.
 
@@ -259,54 +301,51 @@ Ingests the full content of a single GitHub repository, optionally scoped to a d
 - **Repository**: The full repository path in `owner/repo` format, for example `my-org/my-docs`.
 - **Branch**: The branch to read from. Defaults to `main`.
 - **Path**: An optional subdirectory path within the repository. Leave blank to ingest the entire repository.
-- **Token**: A GitHub PAT or fine-grained access token for private repositories. Stored securely and never returned to the browser.
+- **Personal Access Token**: A GitHub PAT or fine-grained access token for private repositories. Stored securely and never returned to the browser.
 
-Supported file types: `.txt`, `.md`, `.rst`, `.pdf`, `.docx`. Files with the `.url` extension trigger a web crawl — the file should contain one URL per line, or a JSON object with `{"url": "...", "crawl_links": true}`.
+Supported file types: `.txt`, `.md`, `.rst`, `.pdf`, `.docx`. You can also place a `.corpora` file at the repository root to declaratively control what gets ingested, including web URLs and crawl depth.
 
 Use this source type when you want to ingest the complete content of a documentation or knowledge repository rather than just selected files across many repos.
 
 ---
 
-### GitLab (User Repositories)
+### GitLab
 
-Ingests selected files from all repositories belonging to a GitLab user or group.
+Ingests selected files from all repositories belonging to a GitLab user or group on gitlab.com.
 
 **Fields:**
 
-- **GitLab host**: The GitLab instance hostname. Defaults to `gitlab.com`.
-- **GitLab user or group**: The username or group name whose repositories to scan.
-- **Files to fetch**: Filenames to extract from each repository. Defaults to `README.md`.
-- **Repo filter**: Optional comma-separated list of repository names to limit ingestion.
-- **Access Token**: A GitLab personal access token. Stored securely and the UI shows only whether one has been configured.
+- **User or Group**: The GitLab username or group name whose repositories to scan.
+- **Personal Access Token**: A GitLab personal access token. Stored securely and the UI shows only whether one has been configured.
+- **Files to fetch**: A comma-separated list of filenames to extract from each repository. Defaults to `README.md`.
+- **Project filter**: An optional comma-separated list of project names to limit ingestion. Leave blank to ingest all projects.
 
 ---
 
-### GitLab Corpus (Single Repository)
+### GitLab Corpus Repo
 
-Ingests the full content of a single GitLab repository, optionally scoped to a path and branch.
+Ingests the full content of a single GitLab repository on gitlab.com, optionally scoped to a path and branch.
 
 **Fields:**
 
-- **GitLab host**: Hostname of the GitLab instance. Defaults to `gitlab.com`.
 - **Repository**: Full path in `namespace/project` format.
 - **Branch**: Branch to read from. Defaults to `main`.
-- **Path**: Optional subdirectory to scope the ingestion.
-- **Token**: GitLab access token for private repositories. Stored securely.
+- **Path**: Optional subdirectory to scope the ingestion. Leave blank to ingest the entire repository.
+- **Personal Access Token**: GitLab personal access token for private repositories. Stored securely.
 
-Supported file types: `.txt`, `.md`, `.rst`, `.pdf`, `.docx`. Files with the `.url` extension trigger a web crawl — the file should contain one URL per line, or a JSON object with `{"url": "...", "crawl_links": true}`.
+Supported file types: `.txt`, `.md`, `.rst`, `.pdf`, `.docx`. You can also place a `.corpora` file at the repository root to declaratively control what gets ingested, including web URLs and crawl depth.
 
 ---
 
 ### YouTube
 
-Ingests transcripts from all public videos on a YouTube channel.
+Ingests transcripts from videos on a YouTube channel.
 
 **Fields:**
 
 - **YouTube Channel ID**: The channel ID (the alphanumeric string starting with `UC`). This is not the channel name or handle; it can be found from the channel's About page or by using the Share menu on the channel page.
 - **API Key**: A Google Cloud API key with the YouTube Data API v3 enabled. Required to list videos on the channel. Stored securely and the UI shows only whether one has been configured.
-
-Only videos with available captions or auto-generated transcripts are ingested. Videos without transcripts are skipped.
+- **Include transcripts**: When enabled, the ingestor fetches auto-generated captions for each video. This works for any public channel without consuming additional API quota. Videos without captions are skipped silently.
 
 ---
 
@@ -323,7 +362,7 @@ You can add as many Q&A pairs as needed. Each pair is treated as a single chunk.
 
 ---
 
-### Web Pages
+### Web Page
 
 Ingests the text content of specific web pages. In add mode you can paste multiple URLs at once, one per line. In edit mode you adjust a single URL entry.
 
@@ -333,6 +372,35 @@ Ingests the text content of specific web pages. In add mode you can paste multip
 - **Follow links on this page**: When enabled, the ingestor follows links found on the page and ingests those pages as well. Link crawling is limited to the same domain, one level deep, and a maximum of 100 pages per URL.
 
 Page titles are auto-detected at crawl time and do not need to be entered manually. Duplicate URLs are deduplicated automatically.
+
+---
+
+### RSS / Atom Feed
+
+Ingests articles from an RSS or Atom feed. Use this source type to keep a corpus up to date with news, blog posts, or release notes published as a feed.
+
+**Fields:**
+
+- **Feed URL**: The full URL of the RSS or Atom feed, for example `https://news.ycombinator.com/rss`.
+- **Max items**: The maximum number of feed entries to ingest. Defaults to 50. Maximum 500.
+- **Follow links from each article**: When enabled, the ingestor visits each article's linked page and crawls its content. Crawling is limited to the same domain by default, with a configurable maximum number of pages per article (default 100). You can specify additional allowed domains to crawl across sites.
+
+---
+
+### Google Drive
+
+Ingests documents from a Google Drive folder. MyCorpus.ai connects to Google Drive using OAuth so you never share your Google password.
+
+**Setup flow:**
+
+1. Click **Connect Google Drive** in the source form.
+2. A Google login popup opens — sign in and approve read access to your Drive.
+3. A folder picker opens — select the folder you want to ingest.
+4. The folder name and a secure refresh token are saved to the source configuration.
+
+To change the connected folder later, click **Change** on the configured source.
+
+The Google Drive integration must be enabled by your administrator before this source type is available. If the button is missing or shows an error, contact your administrator.
 
 ---
 
@@ -367,11 +435,52 @@ When a file-upload source appears as a citation in a chat answer, clicking the s
 
 ---
 
+### ZIP Archive
+
+Allows you to upload a ZIP file containing multiple documents. The ingestor extracts all supported file types from the archive during the corpus build. This is useful for bulk-loading a large collection of files without uploading them individually.
+
+**Fields:**
+
+- **ZIP file**: A `.zip` archive. Supported contents include PDF, DOCX, Markdown, plain text, and most code file types.
+
+ZIP archive entries are write-once. To replace an uploaded archive, delete the source and upload a new ZIP file.
+
+When a file from a ZIP archive appears as a citation in a chat answer, clicking the source link downloads that individual file.
+
+---
+
+### Corpora File
+
+Allows you to paste or load a `.corpora` declarative build file directly into the source configuration. This source type supports `[web]` and `[rss]` directives to specify URLs and feeds to crawl, and `[excludes]` directives to exclude URL patterns from crawling, without creating individual Web Page or RSS source entries.
+
+**Fields:**
+
+- **Corpora file content**: Paste the content of your `.corpora` file directly into the editor, or click **Load from file…** to load one from disk. The editor validates the content live and shows how many web URLs and RSS feeds will be crawled. A **Test** button lets you preview the full parse result before saving.
+
+Example format:
+
+```
+[web]
+url = https://docs.example.com
+crawl_links = true
+
+[rss]
+url = https://example.com/feed.xml
+max_items = 20
+
+[excludes]
+url = https://docs.example.com/internal/*
+```
+
+`[files]` directives require a folder context (a GitHub Corpus Repo, GitLab Corpus Repo, or Google Drive source) and are ignored in this standalone source type. Connect one of those source types to use file patterns.
+
+---
+
 ## Admin: CORPUS.md
 
-This section is relevant only to users with admin or superadmin roles.
+This section is relevant only to users with admin or owner roles.
 
-Each corpus has an associated CORPUS.md document. This is a plain-text description of what the corpus covers and when it should be used. It is an admin-only configuration field — regular users are never shown this content. It is primarily useful when the corpus is connected to Claude Desktop via the MCP integration, where it helps the AI decide which corpus to search for a given question.
+Each corpus has an associated CORPUS.md document. This is a plain-text description of what the corpus covers and when it should be used. It is an admin-only configuration field — regular users are never shown this content. It is primarily useful when the corpus is connected to claude.ai via the Claude Connector, where it helps the AI decide which corpus to search for a given question.
 
 **How do I edit CORPUS.md?**
 
@@ -385,7 +494,7 @@ Yes. Click **Regenerate with AI** to generate a new description based on the cor
 
 ## Admin: Managing Users
 
-This section is relevant only to users with admin or superadmin roles.
+This section is relevant only to users with admin or owner roles.
 
 **Where do I manage users?**
 
@@ -396,21 +505,21 @@ Open the admin panel by clicking the Corpora button in the sidebar (visible to a
 - **allowed**: The user can access the application and chat normally. This is the default for new users when the access mode is open.
 - **denied**: The user cannot access the application. They will see an "Access required" message after signing in.
 - **admin**: The user has full administrative access, including corpus management, user management, and settings.
-- **superadmin**: Set at deployment time via the ADMIN\_EMAILS environment variable. Superadmins cannot be modified or deleted through the UI.
+- **owner**: Set at deployment time via the ADMIN\_EMAILS environment variable. Owners cannot be modified or deleted through the UI.
 
 **How do I pre-authorise a user before they sign up?**
 
-Set a role for the user's email address before they log in. Their role record will be created in advance (shown as "pre-authorized" in the user list) and applied when they first sign in.
+Set a role for the user's email address before they log in. Their role record will be created in advance (shown as "pending" in the user list) and applied when they first sign in.
 
 **Can I delete a user?**
 
-Yes. Deleting a user removes them from both the identity provider and the application's user database. Superadmins cannot be deleted. Deleted users lose access immediately.
+Yes. Deleting a user removes them from both the identity provider and the application's user database. Owners cannot be deleted. Deleted users lose access immediately.
 
 ---
 
 ## Admin: Token Tracking
 
-This section is relevant only to users with admin or superadmin roles.
+This section is relevant only to users with admin or owner roles.
 
 **How do I change the token tracking mode?**
 
@@ -422,7 +531,7 @@ The total monthly budget is set by your plan tier and cannot be changed from wit
 
 **How is the per-user limit calculated?**
 
-In Per User mode, the effective limit for each user is the plan's total monthly budget divided by the configured user cap. For example, a plan with a 5-million-token budget and a 10-user cap gives each user 500,000 tokens per month. The effective limit is shown in the Users tab.
+In Per User mode, the effective limit for each user is the plan's total monthly budget divided by the configured user cap. For example, a plan with a 3-million-token budget and a 10-user cap gives each user 300,000 tokens per month. The effective limit is shown in the Users tab.
 
 **Does the tracking mode affect the usage ring?**
 
@@ -432,7 +541,7 @@ Yes. In Shared Pool mode, the ring shows the shared pool's total consumption ver
 
 ## Admin: Access Mode and Registration
 
-This section is relevant only to users with admin or superadmin roles.
+This section is relevant only to users with admin or owner roles.
 
 **What is access mode?**
 
@@ -451,7 +560,7 @@ Access mode is available in the admin panel under the Users tab. The registratio
 
 ## Admin: Appearance and Branding
 
-This section is relevant only to users with admin or superadmin roles.
+This section is relevant only to users with admin or owner roles.
 
 **Can the application be customised for my organisation?**
 
@@ -472,11 +581,11 @@ Yes. Each corpus has a **Display Title** and **Display Tagline** that are shown 
 
 ## Admin: Identity and SSO
 
-This section is relevant only to users with admin or superadmin roles.
+This section is relevant only to users with admin or owner roles.
 
 **What is the Identity tab?**
 
-The Identity tab in the admin panel is where administrators configure single sign-on (SSO) login providers for the deployment. SSO options include Google OAuth and SAML / OIDC federation. Google login is available on Pro and Business plans. SAML / OIDC is available on Business plans only.
+The Identity tab in the admin panel is where administrators configure single sign-on (SSO) login providers for the deployment. SSO options include Google OAuth and SAML / OIDC federation. Google login is available on Basic, Pro, and Business plans. SAML / OIDC is available on Business plans only.
 
 **How do I enable Google login?**
 
@@ -488,63 +597,94 @@ Open the admin panel, select the Identity tab, and enter the details for your id
 
 ---
 
+## Admin: Settings
+
+This section is relevant only to users with admin or owner roles.
+
+**What is the Settings panel?**
+
+The Settings panel is where administrators tune how the AI searches the knowledge base and how it responds. Open the admin panel and select the **Settings** tab.
+
+**What is Knowledge Search Depth?**
+
+Knowledge Search Depth controls how many knowledge base passages the AI considers before composing an answer. A higher number provides broader coverage for complex questions but is slightly slower and uses more tokens per query. Options are:
+
+- **Focused (5)** — fastest and lowest cost
+- **Balanced (10)** — recommended default
+- **Thorough (15)** — broader coverage
+- **Exhaustive (20)** — maximum context
+
+**What is Conversation Memory?**
+
+Conversation Memory sets how many previous question-and-answer pairs from the current conversation are included as context when the AI generates a new answer. Increase this if users frequently refer back to earlier parts of a conversation. Options are 3 turns (Short), 5 turns (Standard), or 10 turns (Extended).
+
+**What is Excerpt Length?**
+
+Excerpt Length controls the maximum length of each knowledge base passage sent to the AI. Longer excerpts provide more context but consume more tokens per query. Options are Compact (800 characters), Standard (1,500 characters), or Full (3,000 characters).
+
+**What is the System Prompt?**
+
+The System Prompt is a set of custom instructions that shape how the AI responds to all users. Use it to set the AI's tone, restrict topics, assign a persona, or provide background context. The system prompt applies globally to all users on the deployment.
+
+---
+
 ## Admin: Support
 
-This section is relevant only to users with admin or superadmin roles.
+This section is relevant only to users with admin or owner roles.
 
 **What is the Support tab?**
 
-The Support tab in the admin panel provides contact information and links for getting help with your My Corpus deployment.
+The Support tab in the admin panel provides access to help resources for your MyCorpus.ai deployment. It includes a link to the MyCorpus.ai support site, which offers AI-powered help and documentation. On paid plans (Basic, Pro, Business), the tab also includes a contact form where administrators can send a message directly to the MyCorpus.ai support team. The message is also delivered to your account email so you have a copy.
 
 ---
 
 ## Plan Tiers
 
-My Corpus is offered on four plan tiers.
+MyCorpus.ai is offered on four plan tiers.
 
 **Free — 90-day trial**
 
 - Up to 5 users
 - Up to 5 corpora
 - Up to 20,000 chunks per corpus
-- 1 million tokens per month
+- 500,000 tokens per month
 - Source types: GitHub, YouTube, URL, Q&A, Docs
 - Google login: not included
 - SAML / OIDC login: not included
-- Scheduled corpus rebuilds: not included
+- Corpus rebuilds: Weekly (Sunday at midnight UTC)
 
-**Basic — $19.99/month**
+**Basic — $39/month**
 
 - Up to 10 users
 - Up to 10 corpora
 - Up to 30,000 chunks per corpus
-- 5 million tokens per month
+- 3 million tokens per month
 - Source types: GitHub, YouTube, URL, Q&A, Docs
-- Google login: not included
+- Google login: included
 - SAML / OIDC login: not included
-- Scheduled corpus rebuilds: not included
+- Corpus rebuilds: Weekly (Sunday at midnight UTC)
 
-**Pro — $49.99/month**
+**Pro — $79/month**
 
 - Up to 25 users
 - Up to 25 corpora
 - Up to 50,000 chunks per corpus
-- 15 million tokens per month
+- 10 million tokens per month
 - Source types: GitHub, YouTube, URL, Q&A, Docs
 - Google login: included
 - SAML / OIDC login: not included
-- Scheduled corpus rebuilds: included
+- Corpus rebuilds: Daily or weekly, configurable
 
-**Business — $99.99/month**
+**Business — $149/month**
 
-- Unlimited users
-- Up to 100 corpora
+- Up to 50 users
+- Up to 50 corpora
 - Up to 100,000 chunks per corpus
-- 30 million tokens per month
+- 25 million tokens per month
 - Source types: GitHub, YouTube, URL, Q&A, Docs
 - Google login: included
 - SAML / OIDC login: included
-- Scheduled corpus rebuilds: included
+- Corpus rebuilds: Daily or weekly, configurable
 
 To inquire about a paid plan, contact your administrator.
 
@@ -603,3 +743,11 @@ The application integrates with the browser history. Pressing Back restores the 
 **A file type was rejected when I tried to upload it.**
 
 The Upload Files source type does not support images, audio, video, archive files, executables, fonts, or old binary Office formats (.doc, .xls, .ppt). Supported formats include PDF, .docx, plain text, Markdown, CSV, and source code files. If your file is in an unsupported format, convert it to a supported format before uploading, or use the Paste Text source type to paste the content directly.
+
+**The Google Drive source says "Google Drive is not configured on this instance."**
+
+Your administrator has not yet set up the Google Drive OAuth credentials for this deployment. Contact your administrator to enable the Google Drive source type.
+
+**My free trial has expired and I cannot send queries.**
+
+The 90-day free trial period has ended. An administrator must upgrade the deployment to a paid plan before queries can be submitted again. Contact your administrator to arrange an upgrade.

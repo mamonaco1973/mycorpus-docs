@@ -1,0 +1,11 @@
+# World Geography Corpus — Wikipedia continent articles
+
+[web]
+url = https://en.wikipedia.org/wiki/Continent
+url = https://en.wikipedia.org/wiki/North_America
+url = https://en.wikipedia.org/wiki/South_America
+url = https://en.wikipedia.org/wiki/Europe
+url = https://en.wikipedia.org/wiki/Asia
+url = https://en.wikipedia.org/wiki/Africa
+url = https://en.wikipedia.org/wiki/Oceania
+crawl_links = false

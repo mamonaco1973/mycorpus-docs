@@ -1,0 +1,14 @@
+# My Corpus
+# Replace the example URLs below with your own sources.
+# Use the + [web] and + [rss] buttons to add more sections.
+
+[web]
+url = https://example.com
+crawl_links = false
+max_crawl = 100
+
+[rss]
+url = https://example.com/feed.xml
+max_items = 50
+crawl_links = false
+max_crawl = 100

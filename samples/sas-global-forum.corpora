@@ -1,0 +1,11 @@
+# SAS Global Forum proceedings corpus
+# Index pages live on lexjansen.com; PDFs are hosted on support.sas.com.
+# allow_pattern bypasses the domain filter and PDF skip so papers are fetched directly.
+
+[web]
+url = https://www.lexjansen.com/sgf/2019
+url = https://www.lexjansen.com/sgf/2020
+crawl_links = true
+allow_pattern = https://support.sas.com/*.pdf
+max_crawl = 1000
+max_workers = 5

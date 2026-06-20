@@ -46,7 +46,7 @@ Run from any directory — paths are absolute:
 
 ```powershell
 .\tools\update-docs.ps1
-.\tools\update-docs.ps1 -MaxPasses 3
+.\tools\update-docs.ps1 -MaxPasses 2
 ```
 
 Requires Claude Code (`claude` CLI) to be installed and authenticated.

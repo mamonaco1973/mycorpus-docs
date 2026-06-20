@@ -1,7 +1,7 @@
-# mycorpus Administrator Guide
+# MyCorpus.ai Administrator Guide
 
 This guide covers everything an administrator needs to configure and operate a
-mycorpus deployment: managing corpora, configuring data sources, controlling
+MyCorpus.ai deployment: managing corpora, configuring data sources, controlling
 user access, connecting identity providers, and understanding plan limits.
 
 ---
@@ -10,14 +10,15 @@ user access, connecting identity providers, and understanding plan limits.
 
 1. [Corpora Management](#corpora-management)
 2. [Source Types](#source-types)
-3. [User Management](#user-management)
-4. [Token Usage and Tracking](#token-usage-and-tracking)
-5. [Identity Providers](#identity-providers)
-6. [MCP Connector (Claude Connector)](#mcp-connector-claude-connector)
-7. [Plans and Limits](#plans-and-limits)
-8. [Branding and Settings](#branding-and-settings)
-9. [Data Security](#data-security)
-10. [FAQ](#faq)
+3. [.corpora File Reference](#corpora-file-reference)
+4. [User Management](#user-management)
+5. [Token Usage and Tracking](#token-usage-and-tracking)
+6. [Identity Providers](#identity-providers)
+7. [MCP Connector (Claude Connector)](#mcp-connector-claude-connector)
+8. [Plans and Limits](#plans-and-limits)
+9. [Branding and Settings](#branding-and-settings)
+10. [Data Security](#data-security)
+11. [FAQ](#faq)
 
 ---
 
@@ -41,22 +42,25 @@ The number of corpora you can create is gated by your plan tier:
 | Free     | 5           |
 | Basic    | 10          |
 | Pro      | 25          |
-| Business | 100         |
+| Business | 50          |
 
 ### Configuring sources
 
 Each corpus has a Sources section where you add one or more data sources. The
-available source types are GitHub, GitHub Corpus, GitLab, GitLab Corpus,
-YouTube, URL, Q&A, and uploaded Documents. See the [Source Types](#source-types)
+available source types are GitHub, GitHub Corpus Repo, GitLab, GitLab Corpus
+Repo, YouTube, Web Page (URL), RSS / Atom Feed, Q&A, Google Drive, ZIP
+Archive, Corpora File, and uploaded Documents. See the [Source Types](#source-types)
 section for full configuration details for each type.
 
-Credentials (personal access tokens, API keys) are stored server-side and
-never returned to the browser after being saved. The indicator field returned
-depends on the source type: GitHub sources return `pat_configured`; GitHub
-Corpus, GitLab, and GitLab Corpus sources return `token_configured`; YouTube
-sources return `api_key_configured`. To rotate a credential, enter the new
-value and save. To keep the existing credential unchanged, submit `null` for
-that field — submitting an empty string clears the stored credential.
+Credentials (personal access tokens, API keys, OAuth refresh tokens) are
+stored server-side and never returned to the browser after being saved. The
+indicator field returned depends on the source type: GitHub sources return
+`pat_configured`; GitHub Corpus Repo, GitLab, and GitLab Corpus Repo sources
+return `token_configured`; YouTube sources return `api_key_configured`; Google
+Drive sources return `refresh_token_configured`. To rotate a credential, enter
+the new value and save. To keep the existing credential unchanged, submit
+`null` for that field — submitting an empty string clears the stored
+credential.
 
 ### Building a corpus
 
@@ -68,6 +72,36 @@ on success or `error` on failure.
 The previous corpus remains fully queryable until the new build completes.
 Artifacts are staged in S3 under a timestamped prefix, and the manifest
 pointer is swapped atomically at the end of the build.
+
+### Cancelling a build
+
+While a build is running, a **Cancel** button appears in the corpus panel.
+Clicking it stops the ECS Fargate task and marks the corpus status as
+`cancelled`. The previous build's artifacts remain intact and the corpus
+continues to be queryable. A cancelled build counts as a failed build in the
+notification email if SMTP is configured.
+
+### Scheduled rebuilds
+
+Each corpus can be configured to rebuild automatically on a schedule without
+manual intervention. The scheduler runs daily at midnight UTC.
+
+To enable a schedule, open the corpus panel and click the **Schedule** button.
+The available options depend on your plan tier:
+
+**Free and Basic tiers** — automatic weekly rebuild every Sunday. The day
+cannot be changed.
+
+**Pro and Business tiers** — choose between daily rebuilds or weekly rebuilds
+on a configurable day of the week (Sunday through Saturday).
+
+When the scheduler fires, it launches an ECS build task for each corpus that
+has scheduling enabled and is due today. The build runs exactly like a manual
+build and sends the same email notification on completion (if SMTP is
+configured).
+
+To disable scheduled rebuilds for a corpus, open the Schedule panel and toggle
+off the schedule.
 
 ### Build notifications
 
@@ -106,12 +140,14 @@ when to use that knowledge base. There are two ways this description is set:
   system generates a description automatically by sampling corpus chunks and
   asking the AI model to describe the knowledge base's topics and use cases.
 
-Once a corpus description is set, subsequent builds will not overwrite it.
-You can edit the description manually in the corpus settings at any time.
+Every build regenerates the corpus description. If a `CORPUS.md` file is
+found in the source, its content is used; otherwise the AI generates a new
+description. Manual edits made via the corpus settings panel are not
+preserved across builds.
 
 ### Starter questions
 
-After each successful build the system generates 16 starter questions
+After each successful build the system generates 32 starter questions
 automatically. These appear in the chat interface to help users begin
 conversations. Each question has a short clickable label (3–6 words) and a
 full detailed question text. Starter questions are regenerated on every build.
@@ -137,17 +173,30 @@ rate limit of 5,000 requests/hour) and fetches only the files listed in
 `files` from each repo. Only public repos are indexed; the API request always
 uses `type=public` regardless of PAT scope.
 
-### GitHub Corpus — web crawler anchored to a GitHub repo
+### GitHub Corpus Repo — full repository ingestor
 
-Crawls the rendered web pages associated with a GitHub repository rather than
-the raw file tree. Useful for repositories that publish documentation sites.
+Traverses the complete file tree of a GitHub repository and ingests every
+supported file it contains. Useful for indexing a documentation repo,
+a knowledge base, or any repository with structured content.
 
 | Field   | Required | Description |
 |---------|----------|-------------|
 | repo    | Yes      | GitHub repository path (e.g. `owner/repo`) |
 | branch  | No       | Branch to use (default: `main`) |
-| path    | No       | Path within the repository to scope the crawl |
-| token   | Yes      | Personal access token |
+| path    | No       | Subdirectory prefix to limit ingestion (e.g. `docs/`), heuristic mode only |
+| pat     | No       | Personal access token — raises the GitHub API rate limit from 60 to 5,000 requests/hour and allows access to private repositories |
+
+**Supported file types:** `.txt`, `.md`, `.rst`, `.markdown`, `.text`, `.pdf`, `.docx`.
+Files larger than 10 MB are skipped.
+
+**Declarative mode:** If one or more files ending in `.corpora` exist at the
+repository root, they take full control of what gets ingested. The heuristic
+file crawl is skipped entirely. All `.corpora` files at the root are processed
+in the order returned by the GitHub API. See the [.corpora File Reference](#corpora-file-reference)
+section for the full format and directive list.
+
+If no `.corpora` files are present, the ingestor automatically downloads every
+supported file in the repository (filtered by the optional `path` prefix).
 
 ### GitLab — readme/file ingestor
 
@@ -165,16 +214,25 @@ When `user` is a group path, the ingestor falls back to the groups API
 automatically. Non-404 errors fetching individual files are logged as warnings
 and the remaining files continue to be fetched.
 
-### GitLab Corpus — web crawler anchored to a GitLab project
+### GitLab Corpus Repo — full repository ingestor
 
-Crawls rendered documentation pages associated with a GitLab project.
+Traverses the complete file tree of a GitLab repository and ingests every
+supported file it contains. Mirrors the GitHub Corpus Repo ingestor but uses
+the GitLab Repository Files API.
 
 | Field   | Required | Description |
 |---------|----------|-------------|
-| repo    | Yes      | GitLab project path (e.g. `group/project`) |
+| repo    | Yes      | GitLab project path (e.g. `namespace/project`) |
 | branch  | No       | Branch to use (default: `main`) |
-| path    | No       | Path within the project to scope the crawl |
-| token   | Yes      | Personal access token |
+| path    | No       | Subdirectory prefix to limit ingestion (e.g. `docs/`), heuristic mode only |
+| token   | No       | GitLab personal access token |
+
+**Supported file types:** `.txt`, `.md`, `.rst`, `.markdown`, `.text`, `.pdf`, `.docx`.
+Files larger than 10 MB are skipped.
+
+**Declarative mode:** Same `.corpora` file mechanism as GitHub Corpus Repo. If
+one or more files ending in `.corpora` exist at the repository root, they
+exclusively control ingestion. Otherwise all supported files are downloaded.
 
 ### YouTube
 
@@ -191,12 +249,11 @@ descriptions (search snippets are truncated to ~300 characters by the API).
 The corpus document for each video is `{title}\n\n{description}` when a
 description is present, or just the title when the description is empty.
 
-Note: this ingestor indexes video metadata (title + description) only. Video
-transcripts are not fetched.
+### Web Page (URL) — web page fetcher and crawler
 
-### URL — web page fetcher and crawler
-
-Fetches a web page and optionally crawls links found on that page.
+Fetches one or more web pages and optionally crawls links found on each page.
+When adding a new URL source, you can paste multiple URLs at once (one per
+line). Each URL becomes a separate source entry.
 
 | Field        | Required | Description |
 |--------------|----------|-------------|
@@ -205,15 +262,36 @@ Fetches a web page and optionally crawls links found on that page.
 | crawl_links  | No       | If `true`, also crawl same-domain links from the root page (default: `false`) |
 
 When `crawl_links` is `true`, the ingestor follows every same-domain link
-found on the root page, up to a maximum of 100 pages total. External domains,
-images, videos, and dynamic pages (`.php`, `.jsp`) are skipped. Navigation,
-header, and footer elements are stripped before text is extracted.
+found on the root page, one level deep, up to a maximum of 100 pages total.
+External domains, images, videos, audio files, archives, and dynamic pages
+(`.php`, `.jsp`) are skipped. Navigation, header, and footer elements are
+stripped before text is extracted.
+
+HTML pages are capped at 500,000 extracted characters. If the URL points to a
+PDF or DOCX file (detected by Content-Type or file extension), the ingestor
+extracts text directly from the file with no character cap.
 
 A global deduplication set is shared across all URL-type sources in a build.
 If two sources link to the same page, it is only fetched once. The root URL
 of each source is always fetched fresh regardless of deduplication state.
 
-Each page is capped at 200,000 extracted characters.
+### RSS / Atom Feed
+
+Fetches articles from an RSS or Atom feed. Every entry link in the feed is
+fetched and its page text is extracted, exactly as if each article URL were
+listed as a Web Page source.
+
+| Field           | Required | Description |
+|-----------------|----------|-------------|
+| url             | Yes      | RSS or Atom feed URL |
+| max_items       | No       | Maximum feed entries to process (default: 50) |
+| crawl_links     | No       | If `true`, also follow links found on each article page (default: `false`) |
+| allowed_domains | No       | List of domain patterns to allow for cross-domain link crawling (e.g. `*.example.com`) |
+| max_crawl       | No       | Maximum pages to crawl per article when `crawl_links` is `true` (default: 100) |
+
+Feed entries that have already been seen by another source in the same build
+are skipped (shared deduplication with URL sources). Malformed or unreachable
+feeds are logged as errors and the source is skipped.
 
 ### Q&A — manual question-and-answer pairs
 
@@ -235,6 +313,98 @@ A: {answer}
 Use this source type for curated FAQ content, policy statements, or any
 knowledge that needs to be in the corpus verbatim.
 
+### Google Drive — folder ingestor
+
+Ingests files from a Google Drive folder. Requires Google Drive OAuth
+credentials to be configured at deploy time via the `gdrive_client_id` and
+`gdrive_client_secret` Terraform variables. If those variables are not set,
+the Google Drive source type is unavailable.
+
+**Connection flow:**
+
+1. Click **Connect Google Drive** in the source configuration panel.
+2. A Google login popup opens — sign in and grant Drive read access.
+3. The Google Picker opens — select the folder to ingest.
+4. The folder ID and a refresh token are stored server-side (the refresh token
+   is never returned to the browser after saving).
+
+| Field         | Required | Description |
+|---------------|----------|-------------|
+| folder_id     | Yes      | Google Drive folder ID (set via the Google Picker, not typed manually) |
+| folder_name   | No       | Display name of the selected folder |
+| refresh_token | Yes      | OAuth refresh token (set via the Connect flow, stored server-side) |
+
+**Supported file types:**
+- Google Docs — exported as plain text
+- Google Sheets — exported as CSV (rows tab-separated)
+- Google Slides — exported as plain text
+- PDF — extracted via pypdf
+- Word (.docx) — extracted via python-docx
+- Plain text, Markdown, RST, CSV — decoded as UTF-8
+
+Google Workspace file exports are capped at 10 MB. Binary files (PDF, DOCX,
+plain text) are capped at 50 MB. The ingestor processes up to 500 files per
+folder. Subfolders are traversed recursively up to 5 levels deep.
+
+**Declarative mode:** If one or more files ending in `.corpora` exist as
+direct children of the selected folder, they take full control of what gets
+ingested. All `.corpora` files at the folder root are processed. The same
+`[web]`, `[files]`, `[rss]`, and `[excludes]` directive format applies (see
+the [.corpora File Reference](#corpora-file-reference) section). If no `.corpora` files
+are present, all supported files in the folder tree are downloaded
+automatically.
+
+The credential indicator returned is `refresh_token_configured`.
+
+### ZIP Archive — archive ingestor
+
+Uploads a ZIP file to S3 and extracts all supported files from it at build
+time. No external credentials are needed — the archive lives in the corpus
+S3 bucket.
+
+To add a ZIP source, click **Add Source**, choose **ZIP Archive**, and select
+a `.zip` file. The file is uploaded immediately and the source entry is saved.
+
+**Supported file types inside the archive:**
+- PDF (.pdf) — extracted via pypdf
+- Word (.docx) — extracted via python-docx
+- Plain text (.txt, .md, .rst, .markdown)
+- Code and config files (.py, .js, .ts, .java, .go, .yaml, .json, .sql, and
+  many other common code extensions)
+
+Nested ZIP files inside the archive are skipped. Password-protected entries
+are skipped. Individual files larger than 20 MB are skipped. The ingestor
+processes up to 500 files per archive. Files from ZIP archives are stored
+individually in S3 and can be downloaded directly from source links in the
+chat interface.
+
+### Corpora File — inline `.corpora` definition
+
+Stores a `.corpora` declarative build file inline in the corpus configuration.
+This lets you define URL crawling and RSS feed ingestion directly in the admin
+panel, without committing a `.corpora` file to a repository or folder.
+
+| Field   | Required | Description |
+|---------|----------|-------------|
+| content | Yes      | The full text content of the `.corpora` file |
+
+Paste the content directly into the editor, load a sample from the built-in
+sample picker, or load a `.corpora` file from disk. A live validation indicator
+shows how many web URLs and RSS feeds are configured before you save.
+
+The content field accepts the same INI-style format as a `.corpora` file in a
+GitHub or GitLab repository (see the [.corpora File Reference](#corpora-file-reference)
+section). Supported directives in this mode:
+
+- `[web]` — crawl one or more URLs
+- `[rss]` — fetch articles from an RSS or Atom feed
+- `[excludes]` — URL patterns to exclude from all crawls in this source
+
+The `[files]` directive is not supported in this mode because there is no
+repository or folder tree to expand globs against. If `[files]` directives
+are present in the content, they are ignored and a warning is written to the
+build log.
+
 ### Uploaded Documents
 
 Files uploaded directly through the corpus UI are stored in S3 and
@@ -249,6 +419,124 @@ Uploaded documents appear in the source results summary as `(uploaded files)`.
 
 ---
 
+## .corpora File Reference
+
+A `.corpora` file is a declarative build definition that takes full control of
+what a GitHub Corpus Repo, GitLab Corpus Repo, or Google Drive source ingests.
+The same format is also used by the Corpora File (inline) source type. When a
+`.corpora` file is present, the automatic heuristic file crawl is skipped
+entirely.
+
+The file uses an INI-style format. Lines starting with `#` are comments. Blank
+lines are ignored. Each section header is a directive type in square brackets.
+Multiple directives of the same type are allowed in a single file, and multiple
+`*.corpora` files at the root of a repo or folder are all processed.
+
+### Sections
+
+**`[web]`** — crawl one or more web URLs
+
+```ini
+[web]
+url = https://docs.example.com
+crawl_links = true
+max_crawl = 50
+domain = *.example.com
+max_workers = 10
+```
+
+| Key             | Description |
+|-----------------|-------------|
+| `url`           | Absolute URL to fetch (repeat for multiple URLs) |
+| `crawl_links`   | If `true`, follow same-domain links one level deep (default: `false`) |
+| `max_crawl`     | Maximum pages to crawl when `crawl_links` is `true` (default: 100) |
+| `domain`        | Additional domain patterns (fnmatch) to allow during cross-domain crawling (repeat for multiple) |
+| `allow_pattern` | fnmatch URL whitelist — when set, only URLs matching at least one pattern are followed; overrides the domain filter and enables cross-domain PDF harvesting (repeat for multiple patterns) |
+| `max_workers`   | Number of parallel fetch threads (default: 5, max: 20) |
+
+**`[files]`** — ingest specific files from the repo or folder by glob pattern
+
+```ini
+[files]
+source = docs/*.md
+source = README.md
+source = guides/**/*.rst
+```
+
+| Key      | Description |
+|----------|-------------|
+| `source` | Glob pattern matched against all paths in the repo or folder tree (repeat for multiple patterns) |
+
+This directive is only supported in GitHub Corpus Repo, GitLab Corpus Repo,
+and Google Drive sources. In the Corpora File (inline) source type it is not
+supported — the directive is skipped and a warning is written to the build log.
+
+**`[rss]`** — fetch articles from an RSS or Atom feed
+
+```ini
+[rss]
+url = https://blog.example.com/feed.xml
+max_items = 25
+crawl_links = false
+max_workers = 5
+```
+
+| Key             | Description |
+|-----------------|-------------|
+| `url`           | RSS or Atom feed URL (repeat for multiple feeds) |
+| `max_items`     | Maximum feed entries to process (default: 50) |
+| `crawl_links`   | If `true`, follow links found on each article page (default: `false`) |
+| `max_crawl`     | Maximum pages to crawl per article when `crawl_links` is `true` (default: 100) |
+| `domain`        | Additional domain patterns to allow for cross-domain crawling (repeat for multiple) |
+| `max_workers`   | Number of parallel fetch threads for article pages (default: 5, max: 20) |
+
+**`[excludes]`** — URL patterns to exclude from all crawls in this file
+
+```ini
+[excludes]
+url = https://example.com/*/comments
+url = https://blog.example.com/tags/*
+url = https://example.com/page/*/print
+```
+
+| Key   | Description |
+|-------|-------------|
+| `url` | URL pattern to exclude (fnmatch wildcards supported, e.g. `*`, `?`). Repeat for multiple patterns. |
+
+Exclude patterns apply to all `[web]` and `[rss]` crawls within the same
+`.corpora` file. Place the `[excludes]` section before the `[web]` and `[rss]`
+sections to make it clear which patterns are in effect. Patterns are matched
+against fully-qualified absolute URLs using fnmatch wildcard rules.
+
+Unknown section types emit a warning in the build log and are skipped.
+
+### Example `.corpora` file
+
+```ini
+# Exclude noisy pages from all crawls
+[excludes]
+url = https://docs.example.com/*/changelog
+url = https://docs.example.com/*/archive
+
+# Crawl the documentation site
+[web]
+url = https://docs.example.com
+crawl_links = true
+max_crawl = 200
+
+# Pull in specific repo files
+[files]
+source = README.md
+source = docs/*.md
+
+# Index the company blog
+[rss]
+url = https://blog.example.com/feed.xml
+max_items = 30
+```
+
+---
+
 ## User Management
 
 ### Roles
@@ -258,7 +546,7 @@ Every user in the system has one of the following roles:
 **superadmin** — Users listed in the `ADMIN_EMAILS` environment variable (set
 at deploy time as a comma-separated list). Superadmins always have full admin
 access, cannot be denied, and cannot be modified or deleted through the admin
-UI. Their role shows as `superadmin` in the user list. Only superadmins can
+UI. Their role shows as `owner` in the user list. Only superadmins can
 access corpus management endpoints.
 
 **admin** — Users granted admin access through the Users panel. Admins can
@@ -310,7 +598,7 @@ error. Superadmins bypass the user cap.
 | Free     | 5        |
 | Basic    | 10       |
 | Pro      | 25       |
-| Business | 9,999    |
+| Business | 50       |
 
 ### Pre-authorizing users
 
@@ -338,23 +626,25 @@ generate starter questions and corpus descriptions).
 
 | Tier     | Monthly token budget |
 |----------|---------------------|
-| Free     | 1,000,000           |
-| Basic    | 5,000,000           |
-| Pro      | 15,000,000          |
-| Business | 30,000,000          |
+| Free     | 500,000             |
+| Basic    | 3,000,000           |
+| Pro      | 10,000,000          |
+| Business | 25,000,000          |
 
 ### Tracking modes
 
 Admins can choose between two token tracking modes from the Users panel:
 
 **Per-user** — The monthly budget is divided equally among all user slots
-(`token_budget ÷ user_cap`). Each user has their own counter. When a user
-reaches their individual limit, they are blocked from further queries until
-the next calendar month. Other users are unaffected.
+(`token_budget ÷ user_cap`). Each user has their own counter. Both the
+per-user limit and the shared pool are always enforced — a user is blocked
+when their individual slice is exhausted, and all users are blocked when the
+shared pool is exhausted.
 
 **Shared** — All users draw from a single pool equal to the full
-`token_budget`. The first users to query exhaust the pool; when the shared
-total is reached, all users are blocked until the next calendar month.
+`token_budget`. Both the shared pool and each user's individual slice
+(`token_budget ÷ user_cap`) are always enforced. A user is blocked when
+either limit is reached.
 
 The tracking mode can be changed at any time. Changes take effect on the next
 query.
@@ -377,6 +667,15 @@ Provider management is on the **Identity** tab (admin only). The tab shows the
 current status of each provider and the SP metadata URLs you need when
 registering Cognito in an external identity provider.
 
+Identity provider availability depends on your plan tier:
+
+| Provider            | Free | Basic | Pro | Business |
+|---------------------|------|-------|-----|----------|
+| Email / Password    | ✓    | ✓     | ✓   | ✓        |
+| Google Sign-In      | —    | ✓     | ✓   | ✓        |
+| SAML 2.0            | —    | —     | —   | ✓        |
+| OIDC                | —    | —     | —   | ✓        |
+
 ### Email / Password (always enabled)
 
 Standard Cognito email/password sign-in. Cannot be removed. Ensures admin
@@ -391,15 +690,15 @@ recovery access even if an external provider is misconfigured.
 
 Account recovery is via verified email.
 
-### Google Sign-In (Pro and Business tiers)
+### Google Sign-In
 
 Allows users to sign in with a Google account via Cognito's Google OAuth2
-integration.
+integration. Requires Basic plan or higher.
 
 **Before enabling Google Sign-In**, create an OAuth 2.0 client ID in Google
 Cloud Console and add both values shown in the Identity tab:
 
-- **Authorized JavaScript origin** — the root URL of your mycorpus app
+- **Authorized JavaScript origin** — the root URL of your MyCorpus.ai app
 - **Authorized redirect URI** — the Cognito OAuth2 callback URL
 
 **To configure:**
@@ -414,11 +713,11 @@ saving again. To remove it, click **Remove** on the Google Sign-In card.
 Users who signed in exclusively via Google will need to use email/password
 instead.
 
-### SAML 2.0 (Business tier only)
+### SAML 2.0
 
 Connects any SAML 2.0 identity provider — Okta, Azure AD, Ping, OneLogin, or
 any other SAML-compliant IdP. Multiple SAML providers can be configured
-simultaneously.
+simultaneously. Requires Business plan.
 
 **Register Cognito as a Service Provider in your IdP** using these values from
 the Identity tab:
@@ -443,18 +742,19 @@ the Identity tab:
 To remove a SAML provider, click **Remove** next to its name. Users who sign
 in exclusively via that provider will need to use email/password instead.
 
-### OIDC (Business tier only)
+### OIDC
 
 Connects any OpenID Connect provider — Okta, Auth0, Azure AD in OIDC mode,
 or any other OIDC-compliant IdP. Multiple OIDC providers can be configured.
+Requires Business plan.
 
 **Register Cognito in your OIDC provider** using these values from the
 Identity tab:
 
 - **Sign-in redirect URI** — the Cognito OAuth2 callback URL
 - **Sign-out redirect URI** — the Cognito logout URL
-- **Trusted Origins / Base URI** — the root URL of your mycorpus app (required
-  by Okta's Trusted Origins setting)
+- **Trusted Origins / Base URI** — the root URL of your MyCorpus.ai app
+  (required by Okta's Trusted Origins setting)
 
 **To add an OIDC provider:**
 
@@ -468,15 +768,6 @@ Identity tab:
 The connector requests `email profile openid` scopes. The email claim is
 mapped to the Cognito user's email attribute.
 
-### Provider tier requirements
-
-| Provider        | Required tier |
-|-----------------|---------------|
-| Email / Password | All tiers     |
-| Google Sign-In  | Pro or higher |
-| SAML 2.0        | Business      |
-| OIDC            | Business      |
-
 ---
 
 ## MCP Connector (Claude Connector)
@@ -485,18 +776,26 @@ The MCP Connector exposes your corpora to Claude via the Model Context Protocol.
 Once connected, Claude retrieves relevant passages from your knowledge bases
 during conversations.
 
+### Enabling or disabling the connector
+
+Admins can enable or disable the Claude Connector for all users from the
+**Users** tab using the **Claude Connector** toggle. When disabled, users who
+open the Claude Connector settings panel see a message asking them to contact
+their system administrator. Disabling the connector hides the panel in the UI
+but does not block existing API keys or OAuth tokens from authenticating — the
+MCP endpoint remains accessible regardless of this setting.
+
 ### Connecting claude.ai
 
 1. In claude.ai, go to **Settings → Connectors → Add custom connector**.
-2. Paste the **MCP Server URL** from the Claude Connector panel in the mycorpus
-   settings sidebar.
-3. Click **Connect**. A login window opens.
-4. Sign in with your mycorpus account.
-5. Once authenticated, your knowledge bases are available in every claude.ai
+2. Paste the **MCP Server URL** from the Claude Connector panel in the
+   MyCorpus.ai settings sidebar into the URL field and click **Connect**.
+3. A login window opens — sign in with your MyCorpus.ai account.
+4. Once authenticated, your knowledge bases are available in every claude.ai
    conversation.
 
 The MCP Server URL is shown on the Claude Connector settings panel. Each
-mycorpus deployment has a single shared MCP Server URL.
+MyCorpus.ai deployment has a single shared MCP Server URL.
 
 ### API keys
 
@@ -522,14 +821,15 @@ keys.
 ## Plans and Limits
 
 Four plan tiers are available. The active tier controls corpus limits, chunk
-limits, user caps, and token budgets simultaneously.
+limits, user caps, token budgets, and identity provider availability
+simultaneously.
 
-| Tier     | Corpora | Chunks/corpus | Users | Monthly tokens | IDP support      |
-|----------|---------|---------------|-------|----------------|------------------|
-| Free     | 5       | 20,000        | 5     | 1,000,000      | Email/Password   |
-| Basic    | 10      | 30,000        | 10    | 5,000,000      | Email/Password   |
-| Pro      | 25      | 50,000        | 25    | 15,000,000     | + Google Sign-In |
-| Business | 100     | 100,000       | 9,999 | 30,000,000     | + SAML, OIDC     |
+| Tier     | Corpora | Chunks/corpus | Users | Monthly tokens | Google login | SAML / OIDC |
+|----------|---------|---------------|-------|----------------|--------------|-------------|
+| Free     | 5       | 20,000        | 5     | 500,000        | —            | —           |
+| Basic    | 10      | 30,000        | 10    | 3,000,000      | ✓            | —           |
+| Pro      | 25      | 50,000        | 25    | 10,000,000     | ✓            | —           |
+| Business | 50      | 100,000       | 50    | 25,000,000     | ✓            | ✓           |
 
 The active tier is set via the `runtime_tier` Terraform variable at deploy
 time. It can also be changed at runtime via the Plan API (admin only), which
@@ -572,12 +872,34 @@ The system message injected into every AI model call. It instructs the model
 how to behave when answering questions from the corpus.
 
 Default system prompt:
-> You are a helpful AI assistant grounded in the provided context. Answer
-> questions accurately based on the context excerpts. If the context does not
-> contain enough information to answer, say so clearly rather than speculating.
+> You are a helpful AI assistant grounded in the provided knowledge base.
+> Answer questions accurately based on the knowledge base. If the knowledge
+> base does not contain enough information to answer, say so clearly rather
+> than speculating.
 
-The system prompt can be updated at runtime via the corpus settings API
-without a redeployment. Changes take effect on the next query.
+The system prompt can be updated at runtime via the Settings panel or the
+corpus settings API without a redeployment. Changes take effect on the next
+query.
+
+### AI retrieval settings
+
+The Settings tab (admin only) exposes three retrieval parameters that can be
+changed without redeployment:
+
+**Knowledge Search Depth** (`top_k`) — How many passages the AI considers
+before answering. Options: 5 (Focused), 10 (Balanced, **default**), 15
+(Thorough), 20 (Exhaustive). Lower values reduce token cost per query; higher
+values improve coverage for complex questions.
+
+**Conversation Memory** (`history_window`) — Number of previous Q&A turns
+included as context. Options: 3 (Short), 5 (Standard, **default**), 10
+(Extended). Increase if users frequently refer back to earlier parts of a
+conversation.
+
+**Excerpt Length** (`max_chunk_chars`) — Maximum characters of each knowledge
+base passage sent to the model. Options: 800 (Compact), 1,500 (Standard,
+**default**), 3,000 (Full). Longer excerpts provide more context but consume
+more tokens per query.
 
 ### Sidebar navigation links
 
@@ -595,17 +917,20 @@ upgrading. Set via the `support_email` Terraform variable.
 
 ### Sensitive credential storage
 
-Personal access tokens (GitHub, GitLab) and API keys (YouTube) are stored
-in S3 in the corpus `sources.json` file. They are never returned to the browser.
-The indicator field returned depends on the source type: GitHub sources return
-`pat_configured: true`; GitHub Corpus, GitLab, and GitLab Corpus sources return
-`token_configured: true`; YouTube sources return `api_key_configured: true`.
-To update a credential, submit a new value. Submitting `null` keeps the existing
-credential unchanged; submitting an empty string clears it.
+Personal access tokens (GitHub, GitLab), API keys (YouTube), and OAuth refresh
+tokens (Google Drive) are stored in S3 in the corpus `sources.json` file.
+They are never returned to the browser. The indicator field returned depends
+on the source type: GitHub sources return `pat_configured: true`; GitHub
+Corpus Repo, GitLab, and GitLab Corpus Repo sources return
+`token_configured: true`; YouTube sources return `api_key_configured: true`;
+Google Drive sources return `refresh_token_configured: true`. ZIP Archive and
+Corpora File sources have no sensitive credentials. To update a credential,
+submit a new value. Submitting `null` keeps the existing credential unchanged;
+submitting an empty string clears it.
 
 MCP API keys (the `mc_` tokens users generate for Claude clients) are never
-stored. Only a SHA-256 hash is persisted in DynamoDB. The raw key is returned
-to the user exactly once, at creation time.
+stored in plain form. Only a SHA-256 hash is persisted in DynamoDB. The raw
+key is returned to the user exactly once, at creation time.
 
 ### Superadmin protection
 
@@ -617,10 +942,13 @@ UI, regardless of what DynamoDB contains.
 ### Token tracking and budget enforcement
 
 Token budgets are enforced per-period (calendar month). The system tracks both
-a per-user counter and a shared global counter for every query. Which counter
-is displayed and enforced depends on the active tracking mode (`per_user` or
-`shared`). Token limits are soft: a DynamoDB read failure causes the system to
-fail open (allow the query) rather than lock out all users.
+a per-user counter and a shared global counter for every query. Both limits
+are always enforced simultaneously — a query is blocked if either the shared
+pool is exhausted or the requesting user has reached their individual slice
+(`token_budget ÷ user_cap`). The tracking mode (`per_user` or `shared`)
+controls only which counter is displayed in the UI. A DynamoDB failure during
+the authorization check fails open (the request proceeds). A DynamoDB failure
+during the token budget check returns HTTP 500 — the query is blocked.
 
 ### Password requirements
 
@@ -639,8 +967,9 @@ reset via verified email.
 Superadmins are identified by the `ADMIN_EMAILS` Terraform variable, a
 comma-separated list of email addresses set at deploy time. Any user whose
 email appears in that list always has full admin access, cannot be denied, and
-cannot be deleted or have their role changed through the admin UI. To add or
-remove a superadmin, update the `ADMIN_EMAILS` variable and re-apply Terraform.
+cannot be deleted or have their role changed through the admin UI. Their role
+shows as `owner` in the user list. To add or remove a superadmin, update the
+`ADMIN_EMAILS` variable and re-apply Terraform.
 
 **How do I block all new sign-ups without affecting existing users?**
 
@@ -669,7 +998,8 @@ is applied automatically.
 
 Yes. SAML and OIDC each support multiple configured providers simultaneously.
 Each provider has a unique display name. Google Sign-In is limited to one
-provider (the single configured Google OAuth app).
+provider (the single configured Google OAuth app). SAML and OIDC require the
+Business plan; Google Sign-In requires Basic plan or higher.
 
 **What SP metadata do I need when registering Cognito with my SAML IdP?**
 
@@ -708,10 +1038,15 @@ configuration (e.g. a revoked PAT or incorrect metadata URL) and rebuild.
 
 **How are token budgets enforced for shared vs. per-user tracking?**
 
+Both the shared pool and the per-user allocation are always enforced,
+regardless of tracking mode — a query is blocked if either limit is exceeded.
 In **per-user** mode, the monthly budget is divided by the user cap
-(`token_budget ÷ user_cap`). Each user has an independent counter; one user
-hitting their limit does not affect others. In **shared** mode, all users draw
-from a single pool equal to the full `token_budget`. The tracking mode can be
+(`token_budget ÷ user_cap`); a user is blocked when their individual slice
+runs out, and all users are blocked when the shared pool is exhausted.
+In **shared** mode, all users draw from a single pool equal to the full
+`token_budget`; individual users are also blocked when their per-user slice
+(`token_budget ÷ user_cap`) runs out. The tracking mode controls which counter
+is displayed in the UI — it does not change what is enforced. The mode can be
 changed at any time from the Users panel.
 
 **What is the MCP Server URL used for?**
@@ -719,7 +1054,7 @@ changed at any time from the Users panel.
 The MCP Server URL is the endpoint Claude uses to retrieve passages from your
 knowledge bases via the Model Context Protocol. In claude.ai, paste this URL
 when adding a custom connector. The connection is authenticated via OAuth —
-users sign in with their mycorpus account the first time they connect.
+users sign in with their MyCorpus.ai account the first time they connect.
 
 **How do I revoke a user's MCP API key?**
 
@@ -729,35 +1064,38 @@ revoke it from their profile. If the user account itself needs to be
 deactivated, set the user's role to `denied` or delete their account — both
 actions block all future authenticated requests regardless of key state.
 
+**Can I disable the Claude Connector for all users?**
+
+Yes. On the Users tab, use the **Claude Connector** toggle to enable or disable
+the MCP connector for the entire deployment. When disabled, users see a message
+asking them to contact their administrator. Existing API keys are preserved and
+continue to authenticate normally — disabling the connector hides the UI panel
+but does not block the MCP endpoint.
+
 **Are credentials like GitHub PATs visible to admins in the UI?**
 
-No. Personal access tokens and API keys submitted via the source configuration
-UI are stored in S3 and never returned to the browser. The API returns a
-boolean indicator (`pat_configured` for GitHub, `token_configured` for GitHub
-Corpus/GitLab/GitLab Corpus, `api_key_configured` for YouTube) to show whether
-a credential is set. The raw value cannot be retrieved after it is saved.
+No. Personal access tokens, API keys, and OAuth refresh tokens submitted via
+the source configuration UI are stored in S3 and never returned to the browser.
+The API returns a boolean indicator (`pat_configured` for GitHub;
+`token_configured` for GitHub Corpus Repo, GitLab, and GitLab Corpus Repo;
+`api_key_configured` for YouTube; `refresh_token_configured` for Google Drive)
+to show whether a credential is set. The raw value cannot be retrieved after
+it is saved.
 
 **What builds does the system send email notifications for?**
 
 The system emails all superadmins after every corpus build — both successful
-builds and failed ones. The email includes a per-source document count, error
-details for any failed sources, the total chunk count, and an attached
-CloudWatch log. Notifications require SMTP to be configured via the
-`smtp_server`, `smtp_port`, `smtp_user`, and `smtp_password` Terraform
-variables. If SMTP is not configured, notifications are silently skipped.
+builds and failed ones, including scheduled builds and cancelled builds. The
+email includes a per-source document count, error details for any failed
+sources, the total chunk count, and an attached CloudWatch log. Notifications
+require SMTP to be configured via the `smtp_server`, `smtp_port`, `smtp_user`,
+and `smtp_password` Terraform variables. If SMTP is not configured,
+notifications are silently skipped.
 
 **What happens to users when I downgrade to a lower plan tier?**
 
 Switching to a lower-paid tier via the Plan API immediately purges all
 non-superadmin users from Cognito and DynamoDB. Superadmin accounts are
 preserved. Purged users must re-register once the new plan is active. Note
-that downgrading to the free tier is not permitted through the Plan API;
-that requires cancelling the subscription outside the admin UI.
-
-**What is the free trial and when does it expire?**
-
-New deployments on the free tier receive a 90-day trial period. The trial
-clock starts on first use and cannot be reset. When 15 or fewer days remain,
-the UI displays a warning banner. When the trial expires, further usage is
-blocked until the deployment is upgraded to a paid tier. The trial only applies
-to the free tier; paid tiers are not subject to a trial period.
+that downgrading to the free tier is not available through the Plan API — the
+free tier is only reached by cancelling the subscription outside the admin UI.

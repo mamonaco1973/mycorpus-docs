@@ -1,0 +1,8 @@
+# Hacker News Tech Corpus
+# Feed items are titles and external links only — crawl_links fetches the articles
+
+[rss]
+url = https://news.ycombinator.com/rss
+max_items = 50
+crawl_links = true
+max_crawl = 1

@@ -1,34 +1,34 @@
-# mycorpus Frequently Asked Questions
+# MyCorpus.ai Frequently Asked Questions
 
-This document covers the most common questions about mycorpus — what it is, how it works, how data is protected, and how to get the most out of the system. It is intended for both end users and administrators.
+This document covers the most common questions about MyCorpus.ai — what it is, how it works, how data is protected, and how to get the most out of the system. It is intended for both end users and administrators.
 
 ---
 
-## What is mycorpus?
+## What is MyCorpus.ai?
 
-mycorpus is a private AI assistant that answers questions using your organisation's own content. Rather than drawing on general internet knowledge, mycorpus searches a curated collection of documents, web pages, repositories, and other sources — called a corpus — and generates answers that are grounded in that specific content. Every answer includes citations showing which source material was used.
+MyCorpus.ai is a private AI assistant that answers questions using your organisation's own content. Rather than drawing on general internet knowledge, MyCorpus.ai searches a curated collection of documents, web pages, repositories, and other sources — called a corpus — and generates answers that are grounded in that specific content. Every answer includes citations showing which source material was used.
 
-mycorpus is designed for organisations that need an AI assistant that stays within the boundaries of their own knowledge base: internal documentation, product manuals, policy documents, training materials, or any other structured content.
+MyCorpus.ai is designed for organisations that need an AI assistant that stays within the boundaries of their own knowledge base: internal documentation, product manuals, policy documents, training materials, or any other structured content.
 
 ---
 
 ## Getting an Account
 
-### How do I get access to mycorpus?
+### How do I get access to MyCorpus.ai?
 
-Access is granted by your organisation's mycorpus administrator. Depending on how the system is configured, you may be able to sign up directly on the login page, or your administrator may need to approve your account before you can log in. Contact your administrator if you are unsure.
+Access is granted by your organisation's MyCorpus.ai administrator. Depending on how the system is configured, you may be able to sign up directly on the login page, or your administrator may need to approve your account before you can log in. Contact your administrator if you are unsure.
 
 ### Can I sign up with Google or single sign-on?
 
 If your administrator has configured Google login or enterprise SSO (SAML or OIDC), a login button for that provider will appear on the sign-in page. Click it to authenticate through your identity provider. You do not need a separate password in this case.
 
-### Why is my account pending after I sign up?
+### Why is my account denied after I sign up?
 
-Your administrator has enabled closed-access mode, which means new accounts must be manually approved before they can use the chat. There is no automatic notification — your administrator must check the Users tab in the admin panel to see pending accounts and approve yours from there. Contact your administrator directly if approval is taking too long.
+Your administrator has enabled closed-access mode, which means new accounts are created with a Denied role and cannot access the chat until an administrator manually promotes them. Your account will appear in the Users tab with a Denied role badge. An administrator must locate your account there and change your role to User or Admin. There is no automatic notification — contact your administrator directly to request access.
 
 ### I forgot my password. How do I reset it?
 
-On the login page, click **Forgot password** and enter your email address. A reset link will be sent to that address. If you log in with Google or SSO, password reset is handled by your identity provider and not by mycorpus directly.
+On the login page, click **Forgot password** and enter your email address. A reset link will be sent to that address. If you log in with Google or SSO, password reset is handled by your identity provider and not by MyCorpus.ai directly.
 
 ---
 
@@ -36,15 +36,15 @@ On the login page, click **Forgot password** and enter your email address. A res
 
 ### How do I ask a question?
 
-Type your question in the message box at the bottom of the screen and press Enter or click the send button. mycorpus will search the knowledge base and return an answer with cited sources within a few seconds.
+Type your question in the message box at the bottom of the screen and press Enter or click the send button. MyCorpus.ai will search the knowledge base and return an answer with cited sources within a few seconds.
 
-### Why does mycorpus sometimes say it does not know something?
+### Why does MyCorpus.ai sometimes say it does not know something?
 
-mycorpus answers are grounded exclusively in the content loaded into the corpus. If a topic has not been included in the knowledge base, the system will acknowledge that it cannot find relevant information rather than guess. This is intentional — it prevents the system from generating plausible-sounding but incorrect answers.
+MyCorpus.ai answers are grounded exclusively in the content loaded into the corpus. If a topic has not been included in the knowledge base, the system will acknowledge that it cannot find relevant information rather than guess. This is intentional — it prevents the system from generating plausible-sounding but incorrect answers.
 
 ### Can I ask follow-up questions?
 
-Yes. mycorpus keeps track of your recent conversation history and uses it as context for follow-up questions. You can ask for clarification, more detail, or related information within the same conversation. If you want to start a completely fresh topic, start a new conversation from the sidebar.
+Yes. MyCorpus.ai keeps track of your recent conversation history and uses it as context for follow-up questions. You can ask for clarification, more detail, or related information within the same conversation. If you want to start a completely fresh topic, start a new conversation from the sidebar.
 
 ### What are the starter questions on the chat screen?
 
@@ -64,7 +64,7 @@ Yes. Hover over the conversation in the sidebar and click the delete option. Del
 
 ### Can I cancel a query while it is processing?
 
-Yes. While mycorpus is generating an answer, a **Cancel** button appears in the response area. Clicking it stops the polling and dismisses the pending response. The query may still complete on the server, but the result will not be displayed.
+Yes. While MyCorpus.ai is generating an answer, a **Cancel** button appears in the response area. Clicking it stops the polling and dismisses the pending response. The query may still complete on the server, but the result will not be displayed.
 
 ### How do I choose which corpus to search?
 
@@ -76,11 +76,11 @@ If your administrator has configured multiple corpora, a corpus picker appears a
 
 ### What are the sources shown with each answer?
 
-When mycorpus generates an answer, it retrieves the specific passages from the knowledge base that were most relevant to your question. The sources section shows where those passages came from — document names, URLs, repository paths, or other identifiers. This lets you verify the answer and read the original material.
+When MyCorpus.ai generates an answer, it retrieves the specific passages from the knowledge base that were most relevant to your question. The sources section shows where those passages came from — document names, URLs, repository paths, or other identifiers. This lets you verify the answer and read the original material.
 
-### Can I trust the answers mycorpus gives?
+### Can I trust the answers MyCorpus.ai gives?
 
-mycorpus answers are grounded in your organisation's own content, so they are as reliable as that content. The system does not fabricate sources or invent information beyond what it can find in the corpus. Reviewing the cited sources is always a good way to confirm an answer, especially for important decisions.
+MyCorpus.ai answers are grounded in your organisation's own content, so they are as reliable as that content. The system does not fabricate sources or invent information beyond what it can find in the corpus. Reviewing the cited sources is always a good way to confirm an answer, especially for important decisions.
 
 ### Why does the same question sometimes give a different answer?
 
@@ -92,7 +92,7 @@ AI language models have a small amount of variability in how they express answer
 
 ### What is a token budget?
 
-A token is the basic unit of text that the AI model processes — roughly one word. Each time mycorpus generates a response, it consumes tokens. Your plan includes a monthly token budget that covers all users on the tenant. Tokens are used to process the search results, the conversation history, and the generated answer.
+A token is the basic unit of text that the AI model processes — roughly one word. Each time MyCorpus.ai generates a response, it consumes tokens. Your plan includes a monthly token budget that covers all users on the tenant. Tokens are used to process the search results, the conversation history, and the generated answer.
 
 ### How many tokens do I have?
 
@@ -106,19 +106,19 @@ You will see a message indicating that your monthly token budget is exhausted an
 
 ## Data Protection and Privacy
 
-### Who owns the data loaded into mycorpus?
+### Who owns the data loaded into MyCorpus.ai?
 
-You own your data. Each mycorpus tenant runs in a dedicated, isolated AWS account managed by mycorpus. Your corpus content, user conversations, and configuration data are contained within that account and are never co-mingled with another organisation's data. No other tenant can access your account, and mycorpus staff access is governed by standard AWS IAM controls.
+You own your data. Each MyCorpus.ai tenant runs in a dedicated, isolated AWS account managed by MyCorpus.ai. Your corpus content, user conversations, and configuration data are contained within that account and are never co-mingled with another organisation's data. No other tenant can access your account, and MyCorpus.ai staff access is governed by standard AWS IAM controls.
 
 ### Does AWS use my data to train AI models?
 
-No. AWS Bedrock, which mycorpus uses for AI inference, does not use data submitted through the API to train or improve foundation models. This is contractually guaranteed in AWS's service terms. Your prompts and the model's responses are processed in memory and are not stored or logged by Bedrock after the API call completes.
+No. AWS Bedrock, which MyCorpus.ai uses for AI inference, does not use data submitted through the API to train or improve foundation models. This is contractually guaranteed in AWS's service terms. Your prompts and the model's responses are processed in memory and are not stored or logged by Bedrock after the API call completes.
 
 ### Does Anthropic see my data?
 
-No. The Claude model used by mycorpus runs inside AWS's infrastructure, not Anthropic's. When you submit a question, it goes to AWS Bedrock, which handles the inference entirely within AWS. Anthropic supplies the model weights but does not receive or have access to your runtime data.
+No. The Claude model used by MyCorpus.ai runs inside AWS's infrastructure, not Anthropic's. When you submit a question, it goes to AWS Bedrock, which handles the inference entirely within AWS. Anthropic supplies the model weights but does not receive or have access to your runtime data.
 
-### Is my data shared between different mycorpus deployments?
+### Is my data shared between different MyCorpus.ai deployments?
 
 No. Each organisation gets a dedicated AWS account. There is no shared infrastructure, shared database, or shared model context between tenants. Your data physically cannot be accessed from another organisation's environment.
 
@@ -134,9 +134,9 @@ Your data is stored in the AWS region your administrator chose at deployment tim
 
 Your conversations are private to your account. Other regular users cannot see your conversations. Administrators can manage user accounts but do not have a built-in admin interface to browse individual user conversations. Conversations are stored in S3 under a path keyed to your email address.
 
-### What data does mycorpus store about me?
+### What data does MyCorpus.ai store about me?
 
-mycorpus stores your email address (used as your user identifier), your conversation history (questions and answers), and your token usage counters. It does not store payment information, browsing behaviour outside the application, or any data beyond what is needed to operate the chat service.
+MyCorpus.ai stores your email address (used as your user identifier), your conversation history (questions and answers), and your token usage counters. It does not store payment information, browsing behaviour outside the application, or any data beyond what is needed to operate the chat service.
 
 ### Can my data be deleted?
 
@@ -148,13 +148,13 @@ Yes. An administrator can delete your user account from the admin panel. This re
 
 ### What is a corpus?
 
-A corpus is a named, searchable collection of content. Administrators build corpora by configuring sources (web pages, documents, repositories, etc.) and triggering a build process. The build process downloads the content, splits it into searchable chunks, generates AI embeddings for each chunk, and stores the result. When you ask a question, mycorpus searches the active corpus to find relevant passages.
+A corpus is a named, searchable collection of content. Administrators build corpora by configuring sources (web pages, documents, repositories, etc.) and triggering a build process. The build process downloads the content, splits it into searchable chunks, generates AI embeddings for each chunk, and stores the result. When you ask a question, MyCorpus.ai searches the active corpus to find relevant passages.
 
 ### How current is the information in the knowledge base?
 
 The knowledge base reflects the content at the time of the last corpus build. If the source material has changed since then, the answers may not reflect those changes. Administrators can rebuild the corpus at any time to pick up updated content.
 
-### Why can't mycorpus answer my question even though I know the information is in the documents?
+### Why can't MyCorpus.ai answer my question even though I know the information is in the documents?
 
 Several things can affect retrieval quality. The document may not have been included in the most recent build, the content may be in a format the ingestor could not process, or the way the question is phrased may not closely match the relevant passage. Try rephrasing the question. If the problem persists, let your administrator know so they can check whether the relevant source is correctly configured and included in the corpus.
 
@@ -168,19 +168,23 @@ You cannot upload documents as a regular user. Administrators can upload documen
 
 ### What types of sources can be loaded into a corpus?
 
-mycorpus supports nine source types:
+MyCorpus.ai supports thirteen source types:
 
-**GitHub** — fetches specific files (e.g. README.md) from all public repositories belonging to a GitHub user account. Useful for indexing documentation spread across many repos.
+**GitHub** — fetches specific files (e.g. README.md) from all public repositories belonging to a GitHub user account. Useful for indexing documentation spread across many repos. Requires a GitHub Personal Access Token (PAT).
 
-**GitHub Corpus Repo** — downloads every supported file from a single GitHub repository (or subdirectory). Treats the repo as a document store. Supports .txt, .md, .rst, .pdf, .docx, and .url files.
+**GitHub Corpus Repo** — downloads every supported file from a single GitHub repository (or subdirectory). Treats the repo as a document store. Supports .txt, .md, .rst, .markdown, .text, .pdf, and .docx files. Files larger than 10 MB are skipped automatically.
 
-**GitLab** — equivalent to the GitHub source but for GitLab users and groups.
+**GitLab** — equivalent to the GitHub source but for GitLab users and groups. Requires a GitLab personal access token.
 
-**GitLab Corpus Repo** — equivalent to GitHub Corpus Repo but for GitLab projects.
+**GitLab Corpus Repo** — equivalent to GitHub Corpus Repo but for GitLab projects. Supports the same file extensions: .txt, .md, .rst, .markdown, .text, .pdf, and .docx files. Files larger than 10 MB are skipped automatically.
 
-**YouTube** — indexes video titles and descriptions from a YouTube channel's public videos. Requires a YouTube Data API v3 key.
+**YouTube** — indexes video titles and descriptions from a YouTube channel's public videos. Optionally includes full video transcripts when the `include_transcripts` setting is enabled — transcripts are fetched using auto-generated or manually uploaded captions and appended after the video description; videos with no captions available are silently skipped. Requires a YouTube Data API v3 key.
 
 **Web Page** — fetches and indexes content from one or more URLs. Optional link crawling follows same-domain links found on the root page (one level deep), up to 100 pages in total.
+
+**RSS / Atom Feed** — fetches an RSS or Atom feed and ingests the article page behind each entry link. Up to 50 items by default, configurable to any number. Optional link crawling follows same-domain links from each article page.
+
+**Google Drive** — ingests files from a selected Google Drive folder. Connects via OAuth — administrators click "Connect Google Drive," log in with their Google account, and select a folder using the Google Picker. Supports Google Docs (exported as plain text), Google Sheets (exported as CSV), Google Slides (exported as plain text), PDF, Word (.docx), plain text, Markdown, RST, and CSV. Up to 500 files per folder; individual binary files (PDF, DOCX, text) are capped at 50 MB, and Google Workspace exports (Docs, Sheets, Slides) are capped at 10 MB. Requires the system operator to configure Google Drive OAuth credentials at the deployment level.
 
 **Q&A** — lets administrators enter question-and-answer pairs directly. Ideal for FAQs, policies, and known issues.
 
@@ -188,21 +192,26 @@ mycorpus supports nine source types:
 
 **Upload Files** — upload files directly through the admin interface. Supports PDF, DOCX, and any text-based file (TXT, MD, CSV, source code, etc.). Multiple files can be uploaded in one operation.
 
-### What is a .url file and how does it work?
+**ZIP Archive** — upload a ZIP file through the admin interface. Every supported file inside the archive is extracted and indexed. Supports PDF, DOCX, plain text, Markdown, and a wide range of code and config file extensions. Up to 500 files per archive, with individual files capped at 20 MB. Nested ZIP files are skipped automatically.
 
-A `.url` file is a special file type recognised by the GitHub Corpus Repo and GitLab Corpus Repo sources. When the ingestor encounters a file with a `.url` extension in the repository, it reads the file and triggers a web crawl on the URL it contains.
+**Corpora File** — lets administrators paste or type `.corpora` file content directly into the corpus configuration. Supports `[web]`, `[rss]`, and `[excludes]` directives inline, without requiring a GitHub, GitLab, or Google Drive repository. `[files]` directives are ignored in this mode because there is no folder context; a warning is written to the build log. Useful for declaring web URLs and RSS feeds to ingest when no external repository is needed.
 
-The file can contain either a plain URL on the first line, or a JSON object:
+### What is a .corpora file and how does it work?
 
-```json
-{"url": "https://example.com", "crawl_links": true, "title": "Optional title"}
-```
+A `.corpora` file placed at the root of a GitHub Corpus Repo, GitLab Corpus Repo, or Google Drive folder triggers declarative mode for that source. In declarative mode, the `.corpora` file controls exactly what is ingested — the normal heuristic file traversal is skipped entirely.
 
-When `crawl_links` is `true`, the crawler follows same-domain links found on the root page (one level deep), fetching up to 100 pages in total. This allows you to use a GitHub or GitLab repo as a corpus configuration file that also triggers web crawls.
+A `.corpora` file can declare four types of content directives:
+
+- **[web]** — a list of URLs to fetch and crawl, with optional same-domain link following and domain whitelist settings
+- **[rss]** — a list of RSS or Atom feed URLs to ingest
+- **[files]** — a list of file paths or glob patterns within the repository or folder to include
+- **[excludes]** — a list of URL patterns (fnmatch wildcards) to exclude from web and RSS crawls. When the `.corpora` content is used via the **Corpora File** source type, these patterns are applied to every `[web]` and `[rss]` crawl in the file. When a `.corpora` file is placed in a GitHub Corpus Repo, GitLab Corpus Repo, or Google Drive folder, `[excludes]` directives are parsed but silently ignored — exclude patterns have no effect in those repo-based sources.
+
+When no `.corpora` file is present at the root, the ingestor falls back to heuristic mode and includes every supported file it finds in the repository or folder tree. Multiple `.corpora` files at the root are all processed in sequence. This mechanism is useful for maintaining a single repository that centrally declares all content sources for a corpus.
 
 ### How do I set up automatic corpus updates?
 
-Use the GitHub Corpus Repo or GitLab Corpus Repo source pointing to a repository that your team maintains. When documents in the repository are updated, the next corpus build will pick them up automatically. Administrators can trigger a build at any time from the corpus detail panel. On Pro and Business plans, corpus builds can also be scheduled to run automatically on a recurring basis.
+Scheduled corpus builds run automatically on all plan tiers. On Free and Basic plans, the scheduler fires once a week on Sunday at midnight UTC — the day is fixed and not configurable. On Pro and Business plans, administrators can choose between daily rebuilds or weekly rebuilds on any configured day of the week. Administrators can also trigger a build manually at any time from the corpus detail panel.
 
 ---
 
@@ -210,25 +219,25 @@ Use the GitHub Corpus Repo or GitLab Corpus Repo source pointing to a repository
 
 ### What is the Claude Connector?
 
-The Claude Connector lets you search your mycorpus knowledge bases directly from claude.ai. Instead of switching between applications, you ask Claude a question and Claude searches your corpus automatically to find relevant answers. The connection uses the Model Context Protocol (MCP), an open standard for connecting AI assistants to external data sources.
+The Claude Connector lets you search your MyCorpus.ai knowledge bases directly from claude.ai. Instead of switching between applications, you ask Claude a question and Claude searches your corpus automatically to find relevant answers. The connection uses the Model Context Protocol (MCP), an open standard for connecting AI assistants to external data sources.
 
 ### Do I need a special plan to use the Claude Connector?
 
-No. The Claude Connector is available to all registered users regardless of plan tier.
+No. The Claude Connector is available to all registered users regardless of plan tier. However, an administrator can disable the Claude Connector for the entire tenant from the Users tab in the admin panel.
 
-### How do I connect claude.ai to mycorpus?
+### How do I connect claude.ai to MyCorpus.ai?
 
-Open your settings in mycorpus (the person icon in the sidebar) and go to the **Claude Connector** tab. Copy the MCP Server URL shown there. In claude.ai, go to **Settings → Connectors → Add custom connector**, paste the MCP Server URL into the URL field, and click **Connect**. A login window will open — sign in with your mycorpus account. Once authenticated, your knowledge bases are available as search tools in every claude.ai conversation.
+Open your settings in MyCorpus.ai (the person icon in the sidebar) and go to the **Claude Connector** tab. Copy the MCP Server URL shown there. In claude.ai, go to **Settings → Connectors → Add custom connector**, paste the MCP Server URL into the URL field, and click **Connect**. A login window will open — sign in with your MyCorpus.ai account. Once authenticated, your knowledge bases are available as search tools in every claude.ai conversation.
 
 ### What is CORPUS.md?
 
-CORPUS.md is a description of what a corpus covers. It tells Claude which knowledge base to use for which questions. When Claude calls `list_corpora`, it receives the CORPUS.md description for each corpus. A well-written CORPUS.md helps Claude pick the right corpus automatically.
+CORPUS.md is a description of what a corpus covers. It is used as the description of each corpus's MCP search tool — when Claude calls `tools/list` to discover what is available, each corpus appears as a `search_<corpus>` tool whose description is taken from that corpus's CORPUS.md. A well-written CORPUS.md helps Claude automatically pick the right corpus for each question.
 
-Administrators can write CORPUS.md manually from the corpus detail panel, upload it as a file in a GitHub or GitLab source repository, or let mycorpus generate one automatically during the corpus build.
+Administrators can write CORPUS.md manually from the corpus detail panel, or let MyCorpus.ai generate one automatically during the corpus build.
 
 ### What happens if I have multiple corpora — how does Claude know which one to search?
 
-Claude calls `list_corpora` to see all available corpora and their CORPUS.md descriptions. Based on the content of the question and the descriptions, Claude selects the most relevant corpus to search. You can also ask Claude explicitly to search a specific corpus by name.
+When Claude connects to MyCorpus.ai via MCP, it discovers a `search_<corpus>` tool for each corpus, each carrying that corpus's CORPUS.md text as its tool description. Claude reads these descriptions to understand what each corpus covers, then selects the most relevant one to search based on your question. You can also ask Claude explicitly to search a specific corpus by name.
 
 ---
 
@@ -236,11 +245,11 @@ Claude calls `list_corpora` to see all available corpora and their CORPUS.md des
 
 ### What can an administrator do that a regular user cannot?
 
-There are two distinct levels of administrative access in mycorpus.
+There are two distinct levels of administrative access in MyCorpus.ai.
 
-A user promoted to the **Admin role** through the Users tab can access the admin panel to manage users (approve, deny, promote, delete) and configure identity providers (Google, SAML, OIDC). Regular users can only access the chat interface.
+A user promoted to the **Admin role** through the Users tab can access the admin panel to manage users (approve, deny, promote, delete), configure identity providers (Google, SAML, OIDC), adjust token tracking mode, toggle the Claude Connector on or off, and control registration and access-mode settings. Regular users can only access the chat interface.
 
-A **Superadmin** — an account whose email is listed in the `ADMIN_EMAILS` system configuration — has all of the above capabilities and additionally can create and configure corpora, manage branding, and trigger corpus builds. Corpus management and branding are restricted exclusively to Superadmin accounts.
+A **Superadmin** — an account whose email is listed in the `ADMIN_EMAILS` system configuration — has all of the above capabilities and additionally can create and configure corpora, manage branding, adjust AI retrieval settings, and trigger corpus builds. Corpus management and branding are restricted exclusively to Superadmin accounts.
 
 ### What is a Superadmin account?
 
@@ -248,7 +257,7 @@ Superadmin accounts are defined at deployment time by the system operator via th
 
 ### Can there be multiple administrators?
 
-Yes. Any user can be promoted to Admin role through the Users tab. There can be as many admins as needed. Promoted admins can manage users and configure identity providers. Creating and configuring corpora, managing branding, and triggering builds require the Superadmin role, which is limited to the email addresses specified at deployment time.
+Yes. Any user can be promoted to Admin role through the Users tab. There can be as many admins as needed. Promoted admins can manage users, configure identity providers, and adjust token and access settings. Creating and configuring corpora, managing branding, adjusting AI settings, and triggering builds require the Superadmin role, which is limited to the email addresses specified at deployment time.
 
 ### What is the difference between closed-access mode and disabling registrations?
 
@@ -257,6 +266,15 @@ These are two separate controls. Closed-access mode (the access mode setting) me
 ### Can I pre-authorise a user before they register?
 
 Yes. Admins can set a user's role to "allowed" or "admin" by email address before the user has registered. When that user signs up, their pre-set role is applied immediately, bypassing any approval requirement even in closed-access mode.
+
+### Can an administrator configure how the AI searches and responds?
+
+Yes, but only Superadmin accounts have access to the Settings tab in the admin panel. The configurable options are:
+
+- **Knowledge Search Depth** — how many passages the AI considers before answering (5, 10, 15, or 20). Lower values are faster and cheaper; higher values give the AI broader coverage for complex questions.
+- **Conversation Memory** — how many previous question-and-answer pairs are included as context (3, 5, or 10 turns). Increase this if users frequently refer back to earlier parts of a conversation.
+- **Excerpt Length** — the maximum length of each passage sent to the AI (800, 1,500, or 3,000 characters). Longer excerpts provide more context but consume more tokens per query.
+- **System Prompt** — custom instructions that shape the AI's tone, persona, and topic restrictions. Applied to all users on the tenant.
 
 ---
 
@@ -278,7 +296,6 @@ The knowledge base reflects content from the last corpus build. If the source ma
 
 Open the build log in the corpus detail view. Failed sources are clearly marked. Common causes include expired API keys or access tokens, private repositories whose tokens have been rotated, URLs that have gone offline or returned non-200 responses, and PDF or DOCX files that are password-protected or corrupted. Fix the source configuration and trigger a new build.
 
-After every build completes or fails, superadmin email addresses receive an automated build summary. The email lists each source, its document count, and any errors, and includes the last 1,000 log events from the build as an attachment. This makes it straightforward to diagnose failures without opening the admin panel.
 
 ### Why does the corpus build take a long time?
 
@@ -294,20 +311,20 @@ Each corpus has its own independent build process. You can build multiple corpor
 
 ### What plan tiers are available?
 
-mycorpus is available in four tiers: Free, Basic, Pro, and Business. The tier controls the number of users, the number of corpora, the chunk limit per corpus, the monthly token budget, which identity providers are available, and whether scheduled corpus rebuilds are supported.
+MyCorpus.ai is available in four tiers: Free, Basic, Pro, and Business. The tier controls the number of users, the number of corpora, the chunk limit per corpus, the monthly token budget, which identity providers are available, and the flexibility of scheduled corpus rebuilds.
 
 ### What is the difference between the plans?
 
-The Free plan supports up to 5 users, 5 corpora, 20,000 chunks per corpus, and a 1 million token monthly budget. Google, SAML, and OIDC login are not available. Scheduled corpus rebuilds are not available. The Free plan includes a 90-day trial period, after which new queries are blocked until the plan is upgraded.
+The Free plan supports up to 5 users, 5 corpora, 20,000 chunks per corpus, and a 500,000 token monthly budget. Google, SAML, and OIDC login are not available. Scheduled corpus rebuilds run automatically once a week on Sunday at midnight UTC. The Free plan includes a 90-day trial period, after which new queries are blocked until the plan is upgraded.
 
-The Basic plan supports up to 10 users, 10 corpora, 30,000 chunks per corpus, and a 5 million token monthly budget. Google, SAML, and OIDC login are not available. Scheduled corpus rebuilds are not available.
+The Basic plan supports up to 10 users, 10 corpora, 30,000 chunks per corpus, and a 3 million token monthly budget. Google, SAML, and OIDC login are not available. Scheduled corpus rebuilds run automatically once a week on Sunday at midnight UTC.
 
-The Pro plan supports up to 25 users, 25 corpora, 50,000 chunks per corpus, and a 15 million token monthly budget. Google login is available. SAML and OIDC login are not available. Scheduled corpus rebuilds are available.
+The Pro plan supports up to 25 users, 25 corpora, 50,000 chunks per corpus, and a 10 million token monthly budget. Google login is available. SAML and OIDC login are not available. Scheduled corpus rebuilds support flexible scheduling — daily or on a configurable day of the week.
 
-The Business plan supports unlimited users, 100 corpora, 100,000 chunks per corpus, and a 30 million token monthly budget. Google, SAML, and OIDC login are all available. Scheduled corpus rebuilds are available.
+The Business plan supports up to 50 users, 50 corpora, 100,000 chunks per corpus, and a 25 million token monthly budget. Google, SAML, and OIDC login are all available. Scheduled corpus rebuilds support flexible scheduling — daily or on a configurable day of the week.
 
 The monthly token budget is the total available to all users on the tenant each calendar month. Both a shared pool limit and a per-user limit are always enforced simultaneously. The token tracking setting controls which figure is shown in the usage display.
 
 ### How do I upgrade my plan?
 
-Contact the mycorpus team to discuss plan options. The active plan tier is stored in the system configuration and is updated as part of the account management process.
+Contact the MyCorpus.ai team to discuss plan options. The active plan tier is stored in the system configuration and is updated as part of the account management process.
