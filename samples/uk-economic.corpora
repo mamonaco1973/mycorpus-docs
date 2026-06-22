@@ -3,17 +3,16 @@
 
 [rss]
 url = https://www.bankofengland.co.uk/rss/publications
-max_items = 50
+max_items = 200
+max_crawl = 200
 crawl_links = true
-max_crawl = 1
 
 [rss]
 url = https://www.ons.gov.uk/feed?uri=/releases
-max_items = 50
+max_items = 200
+max_crawl = 200
 crawl_links = true
-max_crawl = 1
 
 [web]
 url = https://www.ons.gov.uk/methodology
 crawl_links = true
-max_crawl = 30

@@ -1,0 +1,29 @@
+# US Congressional Activity Corpus
+# Enrolled bills: passed both chambers — closest to enacted law.
+# GAO reports: authoritative, well-written accountability findings.
+# Mandated reports: agency reports required by law across many policy domains.
+# crawl_links fetches the full document page (and linked PDF) for each entry.
+
+# ------------------------------------------------------------------------------
+# Enrolled Bills — passed both chambers, awaiting or signed into law
+# ------------------------------------------------------------------------------
+[rss]
+url = https://www.govinfo.gov/rss/bills-enr.xml
+max_items = 200
+crawl_links = true
+
+# ------------------------------------------------------------------------------
+# GAO Reports and Comptroller General Decisions
+# ------------------------------------------------------------------------------
+[rss]
+url = https://www.govinfo.gov/rss/gaoreports.xml
+max_items = 200
+crawl_links = true
+
+# ------------------------------------------------------------------------------
+# Congressionally Mandated Reports — broad policy topic coverage
+# ------------------------------------------------------------------------------
+[rss]
+url = https://www.govinfo.gov/rss/cmr.xml
+max_items = 200
+crawl_links = true

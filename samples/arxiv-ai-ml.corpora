@@ -1,14 +1,8 @@
 # AI & Machine Learning Research Corpus
-# Abstract pages link to structured HTML papers — crawling gets section content
+# crawl_links_only skips the abstract page — PDFs contain the full paper text
 
 [rss]
 url = https://export.arxiv.org/rss/cs.AI
-max_items = 50
-crawl_links = true
-max_crawl = 1
-
-[rss]
-url = https://export.arxiv.org/rss/cs.LG
-max_items = 50
-crawl_links = true
-max_crawl = 1
+max_items = 500
+crawl_links_only = true
+allow_pattern = https://arxiv.org/pdf/*

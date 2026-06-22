@@ -1,7 +1,15 @@
 # Americas Geography — Wikipedia articles with link crawl
 
+[excludes]
+url = https://en.wikipedia.org/wiki/County_(United_States)
+url = https://en.wikipedia.org/wiki/Main_Page
+url = https://en.wikipedia.org/wiki/Wikipedia:*
+url = https://en.wikipedia.org/wiki/Special:*
+url = https://en.wikipedia.org/wiki/Help:*
+url = https://en.wikipedia.org/wiki/Portal:*
+url = https://en.wikipedia.org/wiki/Talk:*
+
 [web]
 url = https://en.wikipedia.org/wiki/North_America
 url = https://en.wikipedia.org/wiki/South_America
 crawl_links = true
-max_crawl = 200

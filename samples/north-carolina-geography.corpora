@@ -5,8 +5,18 @@
 
 [excludes]
 url = https://en.wikipedia.org/wiki/County_(United_States)
+url = https://en.wikipedia.org/wiki/Main_Page
+url = https://en.wikipedia.org/wiki/Wikipedia:*
+url = https://en.wikipedia.org/wiki/Special:*
+url = https://en.wikipedia.org/wiki/Help:*
+url = https://en.wikipedia.org/wiki/Portal:*
+url = https://en.wikipedia.org/wiki/Talk:*
+url = https://en.wikipedia.org/wiki/Councils_of_governments_in_Connecticut
+url = https://en.wikipedia.org/wiki/Local_government
+url = https://en.wikipedia.org/wiki/Washington,_D.C.
+url = https://en.wikipedia.org/wiki/List_of_United_States_counties_and_county_equivalents
 
 [web]
 url = https://en.wikipedia.org/wiki/List_of_counties_in_North_Carolina
 crawl_links = true
-max_crawl = 200
+max_crawl = 1000

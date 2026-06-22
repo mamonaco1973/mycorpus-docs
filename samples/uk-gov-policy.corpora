@@ -5,10 +5,8 @@
 url = https://www.gov.uk/government/feed
 max_items = 100
 crawl_links = true
-max_crawl = 1
 
 [rss]
 url = https://www.gov.uk/search/policy-papers-and-consultations.atom
 max_items = 50
 crawl_links = true
-max_crawl = 1

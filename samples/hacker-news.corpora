@@ -3,6 +3,5 @@
 
 [rss]
 url = https://news.ycombinator.com/rss
-max_items = 50
+max_items = 200
 crawl_links = true
-max_crawl = 1

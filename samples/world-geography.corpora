@@ -1,5 +1,14 @@
 # World Geography Corpus — Wikipedia continent articles
 
+[excludes]
+url = https://en.wikipedia.org/wiki/County_(United_States)
+url = https://en.wikipedia.org/wiki/Main_Page
+url = https://en.wikipedia.org/wiki/Wikipedia:*
+url = https://en.wikipedia.org/wiki/Special:*
+url = https://en.wikipedia.org/wiki/Help:*
+url = https://en.wikipedia.org/wiki/Portal:*
+url = https://en.wikipedia.org/wiki/Talk:*
+
 [web]
 url = https://en.wikipedia.org/wiki/Continent
 url = https://en.wikipedia.org/wiki/North_America

@@ -1,0 +1,9 @@
+# Federal Register Corpus
+# Daily Federal Register issues from govinfo.gov.
+# url_template rewrites SPA detail URLs to the full-issue PDF.
+
+[rss]
+url = https://www.govinfo.gov/rss/fr.xml
+max_items = 50
+max_age_days = 7
+url_template = https://www.govinfo.gov/content/pkg/{id}/pdf/{id}.pdf

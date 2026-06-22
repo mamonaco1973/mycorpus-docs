@@ -7,5 +7,5 @@ url = https://www.lexjansen.com/sgf/2019
 url = https://www.lexjansen.com/sgf/2020
 crawl_links = true
 allow_pattern = https://support.sas.com/*.pdf
-max_crawl = 1000
 max_workers = 5
+max_crawl = 500
